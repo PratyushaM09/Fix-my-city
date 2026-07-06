@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixly — Report. Track. Improve.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0F19;
+    --bg-secondary:#111827;
+    --accent:#3B82F6;
+    --accent-2:#8B5CF6;
+    --success:#22C55E;
+    --warning:#F59E0B;
+    --danger:#EF4444;
+    --text:#F9FAFB;
+    --text-gray:#9CA3AF;
+    --border:rgba(255,255,255,0.08);
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4,.logo,.brand{font-family:'Poppins',sans-serif;}
+
+  /* Background ambient glow */
+  .bg-glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(59,130,246,0.20), transparent 40%),
+      radial-gradient(circle at 85% 25%, rgba(139,92,246,0.18), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(59,130,246,0.12), transparent 50%);
+  }
+
+  a{text-decoration:none;color:inherit;}
+  ul{list-style:none;}
+  button{font-family:inherit;cursor:pointer;border:none;}
+
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--bg-secondary);border-radius:10px;}
+
+  .container{max-width:1240px;margin:0 auto;padding:0 32px;}
+
+  /* ===== NAV ===== */
+  .announce{
+    background:linear-gradient(90deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+    text-align:center;
+    padding:10px 20px;
+    font-size:13px;
+    color:var(--text-gray);
+    border-bottom:1px solid var(--border);
+    position:relative;
+    z-index:20;
+  }
+  .announce b{color:var(--text);}
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    backdrop-filter:blur(16px);
+    background:rgba(11,15,25,0.7);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:1240px;margin:0 auto;padding:18px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-0.5px;}
+  .brand-mark{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:800;
+    box-shadow:0 0 20px rgba(59,130,246,0.5);
+  }
+  .nav-links{display:flex;gap:36px;align-items:center;}
+  .nav-pill{
+    display:flex;gap:8px;background:rgba(255,255,255,0.04);
+    border:1px solid var(--border); padding:8px 8px; border-radius:999px;
+  }
+  .nav-pill a{
+    padding:8px 18px;border-radius:999px;font-size:14px;font-weight:500;color:var(--text-gray);
+    transition:all .25s ease;
+  }
+  .nav-pill a:hover, .nav-pill a.active{background:rgba(255,255,255,0.08);color:var(--text);}
+  .nav-actions{display:flex;gap:14px;align-items:center;}
+  .btn{
+    padding:11px 22px;border-radius:12px;font-weight:600;font-size:14px;
+    transition:all .25s ease; display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.06);}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--accent),#2563EB);
+    color:white; box-shadow:0 4px 20px rgba(59,130,246,0.35);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,0.5);}
+  .btn-outline{background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);}
+  .btn-outline:hover{border-color:var(--accent);background:rgba(59,130,246,0.08);}
+
+  @media(max-width:900px){
+    .nav-pill,.nav-actions .btn-ghost{display:none;}
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative; z-index:1;
+    padding:100px 32px 60px;
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:40px; align-items:center;
+    max-width:1240px;margin:0 auto;
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);
+    padding:7px 16px;border-radius:999px;font-size:13px;color:#93C5FD;font-weight:500;
+    margin-bottom:24px;
+  }
+  .hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);}
+  .hero h1{
+    font-size:56px;line-height:1.08;font-weight:700;letter-spacing:-1.5px;
+    margin-bottom:22px;
+  }
+  .hero h1 span{
+    background:linear-gradient(135deg,#60A5FA,#A78BFA);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{
+    font-size:17px;color:var(--text-gray);max-width:520px;margin-bottom:32px;line-height:1.7;
+  }
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+  .btn-lg{padding:15px 26px;font-size:15px;border-radius:14px;}
+  .hero-meta{display:flex;gap:28px;color:var(--text-gray);font-size:13px;flex-wrap:wrap;}
+  .hero-meta div{display:flex;align-items:center;gap:8px;}
+  .hero-meta svg{width:16px;height:16px;color:var(--success);}
+
+  /* Hero visual - isometric city */
+  .hero-visual{
+    position:relative; height:500px; display:flex;align-items:center;justify-content:center;
+  }
+  .city-glow-orb{
+    position:absolute; width:420px;height:420px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, rgba(59,130,246,0.35), rgba(139,92,246,0.15) 55%, transparent 75%);
+    filter:blur(10px);
+    animation:pulse-orb 6s ease-in-out infinite;
+  }
+  @keyframes pulse-orb{
+    0%,100%{transform:scale(1);opacity:0.9;}
+    50%{transform:scale(1.06);opacity:1;}
+  }
+  .city-svg{position:relative;z-index:2;width:380px;filter:drop-shadow(0 20px 40px rgba(59,130,246,0.3));animation:float-city 5s ease-in-out infinite;}
+  @keyframes float-city{
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-14px);}
+  }
+  .float-card{
+    position:absolute; background:rgba(17,24,39,0.85); backdrop-filter:blur(14px);
+    border:1px solid var(--border); border-radius:14px; padding:12px 16px;
+    display:flex;align-items:center;gap:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    font-size:12.5px; z-index:3;
+  }
+  .float-card .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .fc1{top:6%; left:-4%; animation:floaty 4s ease-in-out infinite;}
+  .fc2{bottom:14%; right:-6%; animation:floaty 5s ease-in-out infinite 1s;}
+  .fc3{top:44%; right:-10%; animation:floaty 4.5s ease-in-out infinite 0.5s;}
+  @keyframes floaty{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+  }
+  @media(max-width:1000px){
+    .hero{grid-template-columns:1fr;padding-top:60px;}
+    .hero h1{font-size:38px;}
+    .hero-visual{height:400px;margin-top:20px;}
+    .fc1,.fc2,.fc3{display:none;}
+  }
+
+  /* ===== SECTION HEADERS ===== */
+  .section{position:relative;z-index:1;padding:100px 32px;}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 60px;}
+  .eyebrow{
+    color:var(--accent);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    margin-bottom:14px;display:block;
+  }
+  .section-head h2{font-size:38px;font-weight:700;letter-spacing:-1px;margin-bottom:16px;}
+  .section-head p{color:var(--text-gray);font-size:16px;line-height:1.7;}
+
+  /* ===== STATS ===== */
+  .stats-wrap{
+    max-width:1240px;margin:0 auto;padding:0 32px 100px;position:relative;z-index:1;
+  }
+  .stats-grid{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  }
+  .stat-card{
+    background:rgba(17,24,39,0.6); border:1px solid var(--border); border-radius:var(--radius);
+    padding:32px 24px; text-align:center; backdrop-filter:blur(10px);
+    transition:transform .3s ease, border-color .3s ease;
+  }
+  .stat-card:hover{transform:translateY(-6px);border-color:rgba(59,130,246,0.4);}
+  .stat-num{font-size:40px;font-weight:800;font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .stat-label{color:var(--text-gray);font-size:14px;margin-top:8px;}
+  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* ===== HOW IT WORKS ===== */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1240px;margin:0 auto;}
+  .step-card{
+    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:var(--radius);
+    padding:36px 28px; position:relative; backdrop-filter:blur(10px);
+    transition:all .3s ease;
+  }
+  .step-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-6px);}
+  .step-num{
+    width:48px;height:48px;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;
+    margin-bottom:22px; box-shadow:0 4px 20px rgba(59,130,246,0.3);
+  }
+  .step-card h3{font-size:20px;margin-bottom:10px;font-weight:600;}
+  .step-card p{color:var(--text-gray);font-size:14.5px;line-height:1.7;}
+  @media(max-width:900px){.steps{grid-template-columns:1fr;}}
+
+  /* ===== FEATURES ===== */
+  .features-grid{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:20px;max-width:1240px;margin:0 auto;
+  }
+  .feature-card{
+    background:rgba(17,24,39,0.55);border:1px solid var(--border);border-radius:var(--radius);
+    padding:26px 22px; backdrop-filter:blur(10px); transition:all .3s ease;
+  }
+  .feature-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.06);transform:translateY(-4px);}
+  .feature-ic{
+    width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,0.12);
+    display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;
+    border:1px solid rgba(59,130,246,0.25);
+  }
+  .feature-card h4{font-size:15px;font-weight:600;margin-bottom:8px;}
+  .feature-card p{font-size:13px;color:var(--text-gray);line-height:1.6;}
+  @media(max-width:1100px){.features-grid{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:700px){.features-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* ===== TESTIMONIALS ===== */
+  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1240px;margin:0 auto;}
+  .testi-card{
+    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:var(--radius);
+    padding:30px; backdrop-filter:blur(10px);
+  }
+  .stars{color:var(--warning);font-size:14px;margin-bottom:16px;}
+  .testi-card p{color:#D1D5DB;font-size:14.5px;line-height:1.75;margin-bottom:22px;}
+  .testi-user{display:flex;align-items:center;gap:12px;}
+  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;}
+  .testi-user .name{font-weight:600;font-size:14px;}
+  .testi-user .role{font-size:12px;color:var(--text-gray);}
+  @media(max-width:900px){.testi-grid{grid-template-columns:1fr;}}
+
+  /* ===== FAQ ===== */
+  .faq-wrap{max-width:820px;margin:0 auto;}
+  .faq-item{
+    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:14px;
+    margin-bottom:14px; overflow:hidden; backdrop-filter:blur(10px);
+  }
+  .faq-q{
+    padding:22px 26px; display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer; font-weight:600; font-size:15.5px;
+  }
+  .faq-q .plus{transition:transform .3s ease;color:var(--accent);font-size:20px;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+  .faq-a p{padding:0 26px 22px;color:var(--text-gray);font-size:14.5px;line-height:1.7;}
+
+  /* ===== CTA BAND ===== */
+  .cta-band{
+    max-width:1240px;margin:0 auto; border-radius:24px; padding:70px 50px; text-align:center;
+    background:linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
+    border:1px solid rgba(59,130,246,0.25); position:relative; overflow:hidden;
+  }
+  .cta-band h2{font-size:34px;font-weight:700;margin-bottom:16px;letter-spacing:-1px;}
+  .cta-band p{color:var(--text-gray);margin-bottom:30px;font-size:16px;}
+  .cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+
+  /* ===== FOOTER ===== */
+  footer{
+    border-top:1px solid var(--border); padding:70px 32px 30px; position:relative;z-index:1;
+  }
+  .footer-grid{
+    max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:40px;
+    padding-bottom:50px;
+  }
+  .footer-brand p{color:var(--text-gray);font-size:14px;margin-top:16px;line-height:1.7;max-width:280px;}
+  .footer-col h5{font-size:14px;margin-bottom:18px;color:var(--text);}
+  .footer-col a{display:block;color:var(--text-gray);font-size:14px;margin-bottom:12px;transition:color .2s;}
+  .footer-col a:hover{color:var(--accent);}
+  .footer-bottom{
+    max-width:1240px;margin:0 auto;padding-top:26px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+    color:var(--text-gray);font-size:13px;
+  }
+  .socials{display:flex;gap:12px;}
+  .socials a{
+    width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.04);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+    transition:all .25s ease;
+  }
+  .socials a:hover{background:rgba(59,130,246,0.15);border-color:var(--accent);}
+  @media(max-width:900px){.footer-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* Report status colors used consistently */
+  .badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}
+  .badge-resolved{background:rgba(34,197,94,0.15);color:var(--success);}
+  .badge-pending{background:rgba(245,158,11,0.15);color:var(--warning);}
+  .badge-progress{background:rgba(59,130,246,0.15);color:var(--accent);}
+  .badge-critical{background:rgba(239,68,68,0.15);color:var(--danger);}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+
+  .back-top{
+    position:fixed; bottom:28px; right:28px; z-index:60;
+    width:48px;height:48px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center; color:white; font-size:18px;
+    box-shadow:0 6px 20px rgba(59,130,246,0.4); opacity:0; pointer-events:none;
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .back-top.show{opacity:1;pointer-events:auto;}
+  .back-top:hover{transform:translateY(-4px);}
+</style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="announce">📣 <b>New!</b> AI-powered duplicate detection now live across all communities &nbsp;→</div>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand"><div class="brand-mark">F</div>Fixly</div>
+    <div class="nav-pill">
+      <a href="#" class="active">Product</a>
+      <a href="#how">How it Works</a>
+      <a href="#features">Features</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-actions">
+      <a href="javascript:void(0)" class="btn btn-ghost">Login</a>
+      <a href="javascript:void(0)" class="btn btn-primary">Report an Issue</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-tag"><span class="dot"></span> Live in 120+ communities</div>
+    <h1>Report Civic Issues.<br>Track Progress.<br><span>Improve Your Community.</span></h1>
+    <p>Fixly connects residents, campuses, and local authorities on one platform — so every pothole, leak, or outage gets seen, verified, and fixed faster.</p>
+    <div class="hero-cta">
+      <a href="javascript:void(0)" class="btn btn-primary btn-lg">Report an Issue →</a>
+      <a href="javascript:void(0)" class="btn btn-outline btn-lg">Explore Issues</a>
+    </div>
+    <div class="hero-meta">
+      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> No credit card required</div>
+      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Free for residents</div>
+      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> GDPR compliant</div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="city-glow-orb"></div>
+    <svg class="city-svg" viewBox="0 0 400 400" fill="none">
+      <defs>
+        <linearGradient id="bgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1E293B"/>
+          <stop offset="1" stop-color="#0F172A"/>
+        </linearGradient>
+        <linearGradient id="glow1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#60A5FA"/>
+          <stop offset="1" stop-color="#3B82F6"/>
+        </linearGradient>
+      </defs>
+      <g opacity="0.9">
+        <rect x="60" y="180" width="46" height="160" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
+        <rect x="120" y="120" width="56" height="220" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.5"/>
+        <rect x="190" y="150" width="46" height="190" rx="4" fill="url(#bgrad)" stroke="#8B5CF6" stroke-opacity="0.4"/>
+        <rect x="250" y="90" width="60" height="250" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.55"/>
+        <rect x="320" y="200" width="42" height="140" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
+        <!-- windows -->
+        <g fill="#60A5FA" opacity="0.85">
+          <rect x="70" y="195" width="8" height="8" rx="1"/><rect x="88" y="195" width="8" height="8" rx="1"/>
+          <rect x="70" y="215" width="8" height="8" rx="1"/><rect x="88" y="215" width="8" height="8" rx="1"/>
+          <rect x="70" y="235" width="8" height="8" rx="1"/><rect x="88" y="235" width="8" height="8" rx="1"/>
+          <rect x="134" y="140" width="8" height="8" rx="1"/><rect x="152" y="140" width="8" height="8" rx="1"/>
+          <rect x="134" y="160" width="8" height="8" rx="1"/><rect x="152" y="160" width="8" height="8" rx="1"/>
+          <rect x="134" y="180" width="8" height="8" rx="1"/><rect x="152" y="180" width="8" height="8" rx="1"/>
+          <rect x="134" y="200" width="8" height="8" rx="1"/><rect x="152" y="200" width="8" height="8" rx="1"/>
+          <rect x="264" y="110" width="8" height="8" rx="1"/><rect x="282" y="110" width="8" height="8" rx="1"/>
+          <rect x="264" y="130" width="8" height="8" rx="1"/><rect x="282" y="130" width="8" height="8" rx="1"/>
+          <rect x="264" y="150" width="8" height="8" rx="1"/><rect x="282" y="150" width="8" height="8" rx="1"/>
+          <rect x="264" y="170" width="8" height="8" rx="1"/><rect x="282" y="170" width="8" height="8" rx="1"/>
+        </g>
+        <circle cx="280" cy="70" r="18" fill="url(#glow1)" opacity="0.5"/>
+      </g>
+      <ellipse cx="200" cy="345" rx="170" ry="14" fill="#3B82F6" opacity="0.12"/>
+    </svg>
+
+    <div class="float-card fc1">
+      <div class="ic" style="background:rgba(239,68,68,0.15);">🕳️</div>
+      <div><div style="font-weight:600;">Pothole reported</div><span class="badge badge-critical">Critical</span></div>
+    </div>
+    <div class="float-card fc2">
+      <div class="ic" style="background:rgba(34,197,94,0.15);">✅</div>
+      <div><div style="font-weight:600;">Streetlight fixed</div><span class="badge badge-resolved">Resolved</span></div>
+    </div>
+    <div class="float-card fc3">
+      <div class="ic" style="background:rgba(59,130,246,0.15);">📍</div>
+      <div><div style="font-weight:600;">Water leak nearby</div><span class="badge badge-progress">In Progress</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-wrap">
+  <div class="stats-grid">
+    <div class="stat-card reveal"><div class="stat-num" data-target="48210">0</div><div class="stat-label">Issues Reported</div></div>
+    <div class="stat-card reveal"><div class="stat-num" data-target="39875">0</div><div class="stat-label">Issues Resolved</div></div>
+    <div class="stat-card reveal"><div class="stat-num" data-target="126400">0</div><div class="stat-label">Active Users</div></div>
+    <div class="stat-card reveal"><div class="stat-num" data-target="1230">0</div><div class="stat-label">Communities Joined</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-head reveal">
+    <span class="eyebrow">Process</span>
+    <h2>How it works</h2>
+    <p>Three simple steps to get civic issues seen, prioritized, and resolved by the right people.</p>
+  </div>
+  <div class="steps">
+    <div class="step-card reveal">
+      <div class="step-num">01</div>
+      <h3>📸 Report</h3>
+      <p>Snap a photo, tag the GPS location, choose a category and severity — submit in under 60 seconds.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">02</div>
+      <h3>👍 Community Upvotes</h3>
+      <p>Neighbors verify and upvote real issues, helping surface what matters most to your community.</p>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-num">03</div>
+      <h3>🏛️ Authority Resolves</h3>
+      <p>The right department is auto-assigned, tracked, and updates flow back to you in real time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-head reveal">
+    <span class="eyebrow">Capabilities</span>
+    <h2>Everything your community needs</h2>
+    <p>Purpose-built tools for residents, volunteers, and administrators alike.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-ic">📍</div><h4>GPS Location Detection</h4><p>Pinpoint exact issue locations automatically.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🖼️</div><h4>Media Uploads</h4><p>Attach images, video, and audio as proof.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">📡</div><h4>Live Status Tracking</h4><p>Follow every issue from report to resolution.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🗳️</div><h4>Community Voting</h4><p>Upvote issues to boost visibility and priority.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🤖</div><h4>AI Duplicate Detection</h4><p>Automatically merges repeated reports.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🔔</div><h4>Smart Notifications</h4><p>Real-time alerts on status and nearby issues.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🕶️</div><h4>Anonymous Reporting</h4><p>Report safely without revealing your identity.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">✔️</div><h4>Verified Users</h4><p>Trust indicators reduce spam and abuse.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">🏢</div><h4>Department Assignment</h4><p>Routes issues to the right authority instantly.</p></div>
+    <div class="feature-card reveal"><div class="feature-ic">📊</div><h4>Analytics Dashboard</h4><p>Track resolution rates and civic performance.</p></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section">
+  <div class="section-head reveal">
+    <span class="eyebrow">Testimonials</span>
+    <h2>Loved by communities</h2>
+    <p>What residents, students, and officials are saying about Fixly.</p>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Our streetlight outage was fixed in three days instead of three months. Fixly actually gets results."</p>
+      <div class="testi-user">
+        <div class="avatar" style="background:linear-gradient(135deg,#3B82F6,#2563EB);">RA</div>
+        <div><div class="name">Riya Anand</div><div class="role">Resident, Green Valley Society</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"The campus maintenance team finally has visibility into every complaint, ranked by real urgency."</p>
+      <div class="testi-user">
+        <div class="avatar" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);">DK</div>
+        <div><div class="name">Daniel Kim</div><div class="role">Facilities Head, Northbridge College</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="stars">★★★★★</div>
+      <p>"Analytics dashboards helped our municipality cut average resolution time by 40% this year."</p>
+      <div class="testi-user">
+        <div class="avatar" style="background:linear-gradient(135deg,#22C55E,#16A34A);">PS</div>
+        <div><div class="name">Priya Sharma</div><div class="role">Ward Officer, City Council</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="section-head reveal">
+    <span class="eyebrow">Support</span>
+    <h2>Frequently asked questions</h2>
+  </div>
+  <div class="faq-wrap">
+    <div class="faq-item reveal">
+      <div class="faq-q">Is Fixly free for residents? <span class="plus">+</span></div>
+      <div class="faq-a"><p>Yes, reporting and tracking issues is completely free for residents, students, and community members.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can I report an issue anonymously? <span class="plus">+</span></div>
+      <div class="faq-a"><p>Absolutely. Toggle Anonymous Reporting on the report form to hide your identity from the public feed.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">How does AI duplicate detection work? <span class="plus">+</span></div>
+      <div class="faq-a"><p>Fixly compares location, category, and image similarity to merge duplicate reports automatically, reducing noise for departments.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <div class="faq-q">Can my college campus or society join? <span class="plus">+</span></div>
+      <div class="faq-a"><p>Yes — Fixly supports neighborhoods, residential societies, and college campuses with dedicated community spaces.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<section class="section" style="padding-top:20px;">
+  <div class="cta-band reveal">
+    <h2>Ready to improve your community?</h2>
+    <p>Join thousands already reporting, tracking, and resolving civic issues with Fixly.</p>
+    <div class="cta-actions">
+      <a href="javascript:void(0)" class="btn btn-primary btn-lg">Get Started Free</a>
+      <a href="javascript:void(0)" class="btn btn-outline btn-lg">Schedule a Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="brand"><div class="brand-mark">F</div>Fixly</div>
+      <p>The civic issue reporting and tracking platform for modern communities, neighborhoods, and campuses.</p>
+      <div class="socials" style="margin-top:20px;">
+        <a href="javascript:void(0)">𝕏</a>
+        <a href="javascript:void(0)">in</a>
+        <a href="javascript:void(0)">◎</a>
+        <a href="javascript:void(0)">✉</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="javascript:void(0)">Report an Issue</a>
+      <a href="javascript:void(0)">Explore Issues</a>
+      <a href="javascript:void(0)">Live Map</a>
+      <a href="javascript:void(0)">Leaderboard</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="javascript:void(0)">About</a>
+      <a href="javascript:void(0)">Community Guidelines</a>
+      <a href="javascript:void(0)">Help Center</a>
+      <a href="javascript:void(0)">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h5>Legal</h5>
+      <a href="javascript:void(0)">Privacy Policy</a>
+      <a href="javascript:void(0)">Terms of Service</a>
+    </div>
+    <div class="footer-col">
+      <h5>Newsletter</h5>
+      <p style="color:var(--text-gray);font-size:13px;margin-bottom:12px;">Get civic updates monthly.</p>
+      <div style="display:flex;gap:8px;">
+        <input type="email" placeholder="Email" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:white;font-size:13px;">
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 Fixly. All rights reserved.</div>
+    <div>Made for better communities, everywhere.</div>
+  </div>
+</footer>
+
+<div class="back-top" id="backTop">↑</div>
+
+<script>
+  // Reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // Animated counters
+  const counters = document.querySelectorAll('.stat-num');
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = parseInt(el.dataset.target, 10);
+        const duration = 1800;
+        const start = performance.now();
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.floor(eased * target).toLocaleString();
+          if (progress < 1) requestAnimationFrame(tick);
+          else el.textContent = target.toLocaleString();
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      }
+    });
+  }, { threshold: 0.4 });
+  counters.forEach(c => counterIO.observe(c));
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+
+  // Back to top
+  const backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 500) backTop.classList.add('show');
+    else backTop.classList.remove('show');
+  });
+  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+</body>
+</html>
