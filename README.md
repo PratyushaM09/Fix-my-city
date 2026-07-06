@@ -1,0 +1,1 @@
+A platform where residents of a locality/college campus can report civic issues (broken streetlight, water leakage, garbage not picked up), upvote existing ones, and track resolution status — like a mini government complaint portal.
