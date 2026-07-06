@@ -1,668 +1,1263 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fixly — Report. Track. Improve.</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0B0F19;
-    --bg-secondary:#111827;
-    --accent:#3B82F6;
-    --accent-2:#8B5CF6;
-    --success:#22C55E;
-    --warning:#F59E0B;
-    --danger:#EF4444;
-    --text:#F9FAFB;
-    --text-gray:#9CA3AF;
-    --border:rgba(255,255,255,0.08);
-    --radius:16px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Inter',sans-serif;
-    overflow-x:hidden;
-  }
-  h1,h2,h3,h4,.logo,.brand{font-family:'Poppins',sans-serif;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixly — Report. Track. Improve.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       TOKENS — same palette as the original: deep navy ground, blue + violet
+       gradient accent, status colors doing double duty as badge colors.
+       ========================================================================== */
+    :root, [data-theme="dark"]{
+      --bg:#0B0F19;
+      --bg-secondary:#111827;
+      --panel:rgba(17,24,39,0.6);
+      --panel-solid:#111827;
+      --accent:#3B82F6;
+      --accent-2:#8B5CF6;
+      --accent-dim:rgba(59,130,246,0.12);
+      --accent-2-dim:rgba(139,92,246,0.14);
+      --success:#22C55E;
+      --success-dim:rgba(34,197,94,0.15);
+      --warning:#F59E0B;
+      --warning-dim:rgba(245,158,11,0.15);
+      --danger:#EF4444;
+      --danger-dim:rgba(239,68,68,0.15);
+      --text:#F9FAFB;
+      --text-gray:#9CA3AF;
+      --text-faint:#6B7280;
+      --border:rgba(255,255,255,0.08);
+      --radius:16px;
+    }
+    [data-theme="light"]{
+      --bg:#F8FAFC;
+      --bg-secondary:#EEF2F7;
+      --panel:rgba(255,255,255,0.72);
+      --panel-solid:#FFFFFF;
+      --accent:#2563EB;
+      --accent-2:#7C3AED;
+      --accent-dim:rgba(37,99,235,0.10);
+      --accent-2-dim:rgba(124,58,237,0.10);
+      --success:#16A34A;
+      --success-dim:rgba(22,163,74,0.12);
+      --warning:#B45309;
+      --warning-dim:rgba(180,83,9,0.12);
+      --danger:#DC2626;
+      --danger-dim:rgba(220,38,38,0.12);
+      --text:#0F172A;
+      --text-gray:#475569;
+      --text-faint:#94A3B8;
+      --border:rgba(15,23,42,0.08);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;transition:background .35s ease,color .35s ease;}
+    h1,h2,h3,h4,.logo,.brand{font-family:'Poppins',sans-serif;}
+    a{text-decoration:none;color:inherit;}
+    ul{list-style:none;}
+    button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+    input,select,textarea{font-family:inherit;}
+    ::-webkit-scrollbar{width:10px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--bg-secondary);border-radius:10px;}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+    @media (prefers-reduced-motion: reduce){
+      *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+    }
 
-  /* Background ambient glow */
-  .bg-glow{
-    position:fixed; inset:0; z-index:0; pointer-events:none;
-    background:
-      radial-gradient(circle at 15% 10%, rgba(59,130,246,0.20), transparent 40%),
-      radial-gradient(circle at 85% 25%, rgba(139,92,246,0.18), transparent 45%),
-      radial-gradient(circle at 50% 90%, rgba(59,130,246,0.12), transparent 50%);
-  }
+    .container{max-width:1240px;margin:0 auto;padding:0 32px;}
 
-  a{text-decoration:none;color:inherit;}
-  ul{list-style:none;}
-  button{font-family:inherit;cursor:pointer;border:none;}
+    /* Background ambient glow — static, like the original (no mouse parallax) */
+    .bg-glow{
+      position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:
+        radial-gradient(circle at 15% 10%, var(--accent-dim), transparent 40%),
+        radial-gradient(circle at 85% 25%, var(--accent-2-dim), transparent 45%),
+        radial-gradient(circle at 50% 90%, var(--accent-dim), transparent 50%);
+    }
 
-  ::-webkit-scrollbar{width:10px;}
-  ::-webkit-scrollbar-track{background:var(--bg);}
-  ::-webkit-scrollbar-thumb{background:var(--bg-secondary);border-radius:10px;}
+    /* ===== VIEW ROUTER ===== */
+    .view{display:none;position:relative;z-index:1;}
+    .view.active{display:block;}
+    .view{opacity:0;}
+    .view.enter{animation:viewIn .45s ease forwards;}
+    @keyframes viewIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-  .container{max-width:1240px;margin:0 auto;padding:0 32px;}
+    /* ===== NAV ===== */
+    .announce{background:linear-gradient(90deg, var(--accent-dim), var(--accent-2-dim));text-align:center;padding:10px 20px;font-size:13px;color:var(--text-gray);border-bottom:1px solid var(--border);position:relative;z-index:20;}
+    .announce b{color:var(--text);}
+    nav{position:sticky; top:0; z-index:50;backdrop-filter:blur(16px);background:color-mix(in srgb, var(--bg) 70%, transparent);border-bottom:1px solid var(--border);}
+    .nav-inner{max-width:1240px;margin:0 auto;padding:18px 32px;display:flex;align-items:center;justify-content:space-between;}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-0.5px;}
+    .brand-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;box-shadow:0 0 20px rgba(59,130,246,0.5);}
+    .nav-pill{display:flex;gap:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border); padding:8px 8px; border-radius:999px;}
+    .nav-pill button{padding:8px 18px;border-radius:999px;font-size:14px;font-weight:500;color:var(--text-gray);transition:all .25s ease;}
+    .nav-pill button:hover, .nav-pill button.active{background:rgba(255,255,255,0.08);color:var(--text);}
+    .nav-actions{display:flex;gap:14px;align-items:center;}
+    .btn{padding:11px 22px;border-radius:12px;font-weight:600;font-size:14px;transition:transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;display:inline-flex;align-items:center;gap:8px;}
+    .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
+    .btn-ghost:hover{background:rgba(255,255,255,0.06);}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#2563EB);color:white;box-shadow:0 4px 20px rgba(59,130,246,0.35);}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,0.5);}
+    .btn-outline{background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);}
+    .btn-outline:hover{border-color:var(--accent);background:rgba(59,130,246,0.08);}
+    .btn-block{width:100%;justify-content:center;}
+    .btn[disabled]{opacity:.5;cursor:not-allowed;}
+    .btn-lg{padding:15px 26px;font-size:15px;border-radius:14px;}
+    .btn-sm{padding:9px 16px;font-size:13px;border-radius:10px;}
+    .theme-switch{width:52px;height:28px;border-radius:999px;background:var(--panel-solid);border:1px solid var(--border);position:relative;padding:3px;display:flex;align-items:center;}
+    .theme-switch .knob{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--warning),var(--accent));transition:transform .3s ease;display:flex;align-items:center;justify-content:center;font-size:11px;}
+    [data-theme="light"] .theme-switch .knob{transform:translateX(24px);}
+    @media(max-width:900px){.nav-pill{display:none;}}
 
-  /* ===== NAV ===== */
-  .announce{
-    background:linear-gradient(90deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
-    text-align:center;
-    padding:10px 20px;
-    font-size:13px;
-    color:var(--text-gray);
-    border-bottom:1px solid var(--border);
-    position:relative;
-    z-index:20;
-  }
-  .announce b{color:var(--text);}
+    /* ===== HERO (isometric city, same as original) ===== */
+    .hero{position:relative; z-index:1;padding:100px 32px 60px;display:grid; grid-template-columns:1.05fr 0.95fr; gap:40px; align-items:center;max-width:1240px;margin:0 auto;}
+    .hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--accent-dim); border:1px solid rgba(59,130,246,0.3);padding:7px 16px;border-radius:999px;font-size:13px;color:#93C5FD;font-weight:500;margin-bottom:24px;}
+    .hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);}
+    .hero h1{font-size:56px;line-height:1.08;font-weight:700;letter-spacing:-1.5px;margin-bottom:22px;}
+    .hero h1 span{background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .hero p{font-size:17px;color:var(--text-gray);max-width:520px;margin-bottom:32px;line-height:1.7;}
+    .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+    .hero-meta{display:flex;gap:28px;color:var(--text-gray);font-size:13px;flex-wrap:wrap;}
+    .hero-meta div{display:flex;align-items:center;gap:8px;}
+    .hero-meta svg{width:16px;height:16px;color:var(--success);}
 
-  nav{
-    position:sticky; top:0; z-index:50;
-    backdrop-filter:blur(16px);
-    background:rgba(11,15,25,0.7);
-    border-bottom:1px solid var(--border);
-  }
-  .nav-inner{
-    max-width:1240px;margin:0 auto;padding:18px 32px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;letter-spacing:-0.5px;}
-  .brand-mark{
-    width:34px;height:34px;border-radius:10px;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:flex;align-items:center;justify-content:center;
-    font-size:16px;font-weight:800;
-    box-shadow:0 0 20px rgba(59,130,246,0.5);
-  }
-  .nav-links{display:flex;gap:36px;align-items:center;}
-  .nav-pill{
-    display:flex;gap:8px;background:rgba(255,255,255,0.04);
-    border:1px solid var(--border); padding:8px 8px; border-radius:999px;
-  }
-  .nav-pill a{
-    padding:8px 18px;border-radius:999px;font-size:14px;font-weight:500;color:var(--text-gray);
-    transition:all .25s ease;
-  }
-  .nav-pill a:hover, .nav-pill a.active{background:rgba(255,255,255,0.08);color:var(--text);}
-  .nav-actions{display:flex;gap:14px;align-items:center;}
-  .btn{
-    padding:11px 22px;border-radius:12px;font-weight:600;font-size:14px;
-    transition:all .25s ease; display:inline-flex;align-items:center;gap:8px;
-  }
-  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border);}
-  .btn-ghost:hover{background:rgba(255,255,255,0.06);}
-  .btn-primary{
-    background:linear-gradient(135deg,var(--accent),#2563EB);
-    color:white; box-shadow:0 4px 20px rgba(59,130,246,0.35);
-  }
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(59,130,246,0.5);}
-  .btn-outline{background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);}
-  .btn-outline:hover{border-color:var(--accent);background:rgba(59,130,246,0.08);}
+    .hero-visual{position:relative; height:500px; display:flex;align-items:center;justify-content:center;}
+    .city-glow-orb{position:absolute; width:420px;height:420px;border-radius:50%;background:radial-gradient(circle at 40% 35%, rgba(59,130,246,0.35), rgba(139,92,246,0.15) 55%, transparent 75%);filter:blur(10px);animation:pulse-orb 6s ease-in-out infinite;}
+    @keyframes pulse-orb{0%,100%{transform:scale(1);opacity:0.9;}50%{transform:scale(1.06);opacity:1;}}
+    .city-svg{position:relative;z-index:2;width:380px;filter:drop-shadow(0 20px 40px rgba(59,130,246,0.3));animation:float-city 5s ease-in-out infinite;}
+    @keyframes float-city{0%,100%{transform:translateY(0px);}50%{transform:translateY(-14px);}}
+    .float-card{position:absolute; background:var(--panel-solid); backdrop-filter:blur(14px);border:1px solid var(--border); border-radius:14px; padding:12px 16px;display:flex;align-items:center;gap:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4);font-size:12.5px; z-index:3;}
+    .float-card .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+    .fc1{top:6%; left:-4%; animation:floaty 4s ease-in-out infinite;}
+    .fc2{bottom:14%; right:-6%; animation:floaty 5s ease-in-out infinite 1s;}
+    .fc3{top:44%; right:-10%; animation:floaty 4.5s ease-in-out infinite 0.5s;}
+    @keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    @media(max-width:1000px){.hero{grid-template-columns:1fr;padding-top:60px;}.hero h1{font-size:38px;}.hero-visual{height:400px;margin-top:20px;}.fc1,.fc2,.fc3{display:none;}}
 
-  @media(max-width:900px){
-    .nav-pill,.nav-actions .btn-ghost{display:none;}
-  }
+    /* ===== SECTION HEADERS ===== */
+    .section{position:relative;z-index:1;padding:100px 32px;}
+    .section-head{text-align:center;max-width:640px;margin:0 auto 60px;}
+    .eyebrow{color:var(--accent);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block;}
+    .section-head h2{font-size:38px;font-weight:700;letter-spacing:-1px;margin-bottom:16px;}
+    .section-head p{color:var(--text-gray);font-size:16px;line-height:1.7;}
+    .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
+    .reveal.visible{opacity:1;transform:translateY(0);}
 
-  /* ===== HERO ===== */
-  .hero{
-    position:relative; z-index:1;
-    padding:100px 32px 60px;
-    display:grid; grid-template-columns:1.05fr 0.95fr; gap:40px; align-items:center;
-    max-width:1240px;margin:0 auto;
-  }
-  .hero-tag{
-    display:inline-flex;align-items:center;gap:8px;
-    background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3);
-    padding:7px 16px;border-radius:999px;font-size:13px;color:#93C5FD;font-weight:500;
-    margin-bottom:24px;
-  }
-  .hero-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);}
-  .hero h1{
-    font-size:56px;line-height:1.08;font-weight:700;letter-spacing:-1.5px;
-    margin-bottom:22px;
-  }
-  .hero h1 span{
-    background:linear-gradient(135deg,#60A5FA,#A78BFA);
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .hero p{
-    font-size:17px;color:var(--text-gray);max-width:520px;margin-bottom:32px;line-height:1.7;
-  }
-  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
-  .btn-lg{padding:15px 26px;font-size:15px;border-radius:14px;}
-  .hero-meta{display:flex;gap:28px;color:var(--text-gray);font-size:13px;flex-wrap:wrap;}
-  .hero-meta div{display:flex;align-items:center;gap:8px;}
-  .hero-meta svg{width:16px;height:16px;color:var(--success);}
+    /* ===== STATS ===== */
+    .stats-wrap{max-width:1240px;margin:0 auto;padding:0 32px 100px;position:relative;z-index:1;}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+    .stat-card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);padding:32px 24px; text-align:center; backdrop-filter:blur(10px);transition:transform .3s ease, border-color .3s ease;}
+    .stat-card:hover{transform:translateY(-6px);border-color:rgba(59,130,246,0.4);}
+    .stat-num{font-size:40px;font-weight:800;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent;}
+    .stat-label{color:var(--text-gray);font-size:14px;margin-top:8px;}
+    @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
 
-  /* Hero visual - isometric city */
-  .hero-visual{
-    position:relative; height:500px; display:flex;align-items:center;justify-content:center;
-  }
-  .city-glow-orb{
-    position:absolute; width:420px;height:420px;border-radius:50%;
-    background:radial-gradient(circle at 40% 35%, rgba(59,130,246,0.35), rgba(139,92,246,0.15) 55%, transparent 75%);
-    filter:blur(10px);
-    animation:pulse-orb 6s ease-in-out infinite;
-  }
-  @keyframes pulse-orb{
-    0%,100%{transform:scale(1);opacity:0.9;}
-    50%{transform:scale(1.06);opacity:1;}
-  }
-  .city-svg{position:relative;z-index:2;width:380px;filter:drop-shadow(0 20px 40px rgba(59,130,246,0.3));animation:float-city 5s ease-in-out infinite;}
-  @keyframes float-city{
-    0%,100%{transform:translateY(0px);}
-    50%{transform:translateY(-14px);}
-  }
-  .float-card{
-    position:absolute; background:rgba(17,24,39,0.85); backdrop-filter:blur(14px);
-    border:1px solid var(--border); border-radius:14px; padding:12px 16px;
-    display:flex;align-items:center;gap:10px; box-shadow:0 10px 30px rgba(0,0,0,0.4);
-    font-size:12.5px; z-index:3;
-  }
-  .float-card .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-  .fc1{top:6%; left:-4%; animation:floaty 4s ease-in-out infinite;}
-  .fc2{bottom:14%; right:-6%; animation:floaty 5s ease-in-out infinite 1s;}
-  .fc3{top:44%; right:-10%; animation:floaty 4.5s ease-in-out infinite 0.5s;}
-  @keyframes floaty{
-    0%,100%{transform:translateY(0);}
-    50%{transform:translateY(-10px);}
-  }
-  @media(max-width:1000px){
-    .hero{grid-template-columns:1fr;padding-top:60px;}
-    .hero h1{font-size:38px;}
-    .hero-visual{height:400px;margin-top:20px;}
-    .fc1,.fc2,.fc3{display:none;}
-  }
+    /* ===== HOW IT WORKS ===== */
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1240px;margin:0 auto;}
+    .step-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px; position:relative; backdrop-filter:blur(10px);transition:all .3s ease;}
+    .step-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-6px);}
+    .step-num{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin-bottom:22px; box-shadow:0 4px 20px rgba(59,130,246,0.3);}
+    .step-card h3{font-size:20px;margin-bottom:10px;font-weight:600;}
+    .step-card p{color:var(--text-gray);font-size:14.5px;line-height:1.7;}
+    @media(max-width:900px){.steps{grid-template-columns:1fr;}}
 
-  /* ===== SECTION HEADERS ===== */
-  .section{position:relative;z-index:1;padding:100px 32px;}
-  .section-head{text-align:center;max-width:640px;margin:0 auto 60px;}
-  .eyebrow{
-    color:var(--accent);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
-    margin-bottom:14px;display:block;
-  }
-  .section-head h2{font-size:38px;font-weight:700;letter-spacing:-1px;margin-bottom:16px;}
-  .section-head p{color:var(--text-gray);font-size:16px;line-height:1.7;}
+    /* ===== FEATURES ===== */
+    .features-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:20px;max-width:1240px;margin:0 auto;}
+    .feature-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px; backdrop-filter:blur(10px); transition:all .3s ease;}
+    .feature-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.06);transform:translateY(-4px);}
+    .feature-ic{width:44px;height:44px;border-radius:12px;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;border:1px solid rgba(59,130,246,0.25);}
+    .feature-card h4{font-size:15px;font-weight:600;margin-bottom:8px;}
+    .feature-card p{font-size:13px;color:var(--text-gray);line-height:1.6;}
+    @media(max-width:1100px){.features-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:700px){.features-grid{grid-template-columns:repeat(2,1fr);}}
 
-  /* ===== STATS ===== */
-  .stats-wrap{
-    max-width:1240px;margin:0 auto;padding:0 32px 100px;position:relative;z-index:1;
-  }
-  .stats-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
-  }
-  .stat-card{
-    background:rgba(17,24,39,0.6); border:1px solid var(--border); border-radius:var(--radius);
-    padding:32px 24px; text-align:center; backdrop-filter:blur(10px);
-    transition:transform .3s ease, border-color .3s ease;
-  }
-  .stat-card:hover{transform:translateY(-6px);border-color:rgba(59,130,246,0.4);}
-  .stat-num{font-size:40px;font-weight:800;font-family:'Poppins',sans-serif;
-    background:linear-gradient(135deg,#60A5FA,#A78BFA);-webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  .stat-label{color:var(--text-gray);font-size:14px;margin-top:8px;}
-  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+    /* ===== TESTIMONIALS ===== */
+    .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1240px;margin:0 auto;}
+    .testi-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:30px; backdrop-filter:blur(10px);}
+    .stars{color:var(--warning);font-size:14px;margin-bottom:16px;}
+    .testi-card p{color:var(--text);opacity:.85;font-size:14.5px;line-height:1.75;margin-bottom:22px;}
+    .testi-user{display:flex;align-items:center;gap:12px;}
+    .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;flex-shrink:0;}
+    .testi-user .name{font-weight:600;font-size:14px;}
+    .testi-user .role{font-size:12px;color:var(--text-gray);}
+    @media(max-width:900px){.testi-grid{grid-template-columns:1fr;}}
 
-  /* ===== HOW IT WORKS ===== */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:1240px;margin:0 auto;}
-  .step-card{
-    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:var(--radius);
-    padding:36px 28px; position:relative; backdrop-filter:blur(10px);
-    transition:all .3s ease;
-  }
-  .step-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-6px);}
-  .step-num{
-    width:48px;height:48px;border-radius:14px;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;
-    margin-bottom:22px; box-shadow:0 4px 20px rgba(59,130,246,0.3);
-  }
-  .step-card h3{font-size:20px;margin-bottom:10px;font-weight:600;}
-  .step-card p{color:var(--text-gray);font-size:14.5px;line-height:1.7;}
-  @media(max-width:900px){.steps{grid-template-columns:1fr;}}
+    /* ===== FAQ ===== */
+    .faq-wrap{max-width:820px;margin:0 auto;}
+    .faq-item{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin-bottom:14px; overflow:hidden; backdrop-filter:blur(10px);}
+    .faq-q{padding:22px 26px; display:flex;justify-content:space-between;align-items:center;cursor:pointer; font-weight:600; font-size:15.5px;}
+    .faq-q .plus{transition:transform .3s ease;color:var(--accent);font-size:20px;}
+    .faq-item.open .plus{transform:rotate(45deg);}
+    .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+    .faq-a p{padding:0 26px 22px;color:var(--text-gray);font-size:14.5px;line-height:1.7;}
 
-  /* ===== FEATURES ===== */
-  .features-grid{
-    display:grid;grid-template-columns:repeat(5,1fr);gap:20px;max-width:1240px;margin:0 auto;
-  }
-  .feature-card{
-    background:rgba(17,24,39,0.55);border:1px solid var(--border);border-radius:var(--radius);
-    padding:26px 22px; backdrop-filter:blur(10px); transition:all .3s ease;
-  }
-  .feature-card:hover{border-color:rgba(59,130,246,0.4);background:rgba(59,130,246,0.06);transform:translateY(-4px);}
-  .feature-ic{
-    width:44px;height:44px;border-radius:12px;background:rgba(59,130,246,0.12);
-    display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;
-    border:1px solid rgba(59,130,246,0.25);
-  }
-  .feature-card h4{font-size:15px;font-weight:600;margin-bottom:8px;}
-  .feature-card p{font-size:13px;color:var(--text-gray);line-height:1.6;}
-  @media(max-width:1100px){.features-grid{grid-template-columns:repeat(3,1fr);}}
-  @media(max-width:700px){.features-grid{grid-template-columns:repeat(2,1fr);}}
+    /* ===== CTA BAND / FOOTER ===== */
+    .cta-band{max-width:1240px;margin:0 auto; border-radius:24px; padding:70px 50px; text-align:center;background:linear-gradient(135deg, var(--accent-dim), var(--accent-2-dim));border:1px solid rgba(59,130,246,0.25); position:relative; overflow:hidden;}
+    .cta-band h2{font-size:34px;font-weight:700;margin-bottom:16px;letter-spacing:-1px;}
+    .cta-band p{color:var(--text-gray);margin-bottom:30px;font-size:16px;}
+    .cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+    footer{border-top:1px solid var(--border); padding:70px 32px 30px; position:relative;z-index:1;}
+    .footer-grid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:40px;padding-bottom:50px;}
+    .footer-brand p{color:var(--text-gray);font-size:14px;margin-top:16px;line-height:1.7;max-width:280px;}
+    .footer-col h5{font-size:14px;margin-bottom:18px;color:var(--text);}
+    .footer-col a,.footer-col span{display:block;color:var(--text-gray);font-size:14px;margin-bottom:12px;transition:color .2s;}
+    .footer-col a:hover{color:var(--accent);}
+    .footer-bottom{max-width:1240px;margin:0 auto;padding-top:26px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;color:var(--text-gray);font-size:13px;}
+    @media(max-width:900px){.footer-grid{grid-template-columns:repeat(2,1fr);}}
 
-  /* ===== TESTIMONIALS ===== */
-  .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1240px;margin:0 auto;}
-  .testi-card{
-    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:var(--radius);
-    padding:30px; backdrop-filter:blur(10px);
-  }
-  .stars{color:var(--warning);font-size:14px;margin-bottom:16px;}
-  .testi-card p{color:#D1D5DB;font-size:14.5px;line-height:1.75;margin-bottom:22px;}
-  .testi-user{display:flex;align-items:center;gap:12px;}
-  .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:white;}
-  .testi-user .name{font-weight:600;font-size:14px;}
-  .testi-user .role{font-size:12px;color:var(--text-gray);}
-  @media(max-width:900px){.testi-grid{grid-template-columns:1fr;}}
+    /* ===== BADGES ===== */
+    .badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}
+    .badge-resolved{background:var(--success-dim);color:var(--success);}
+    .badge-pending{background:var(--warning-dim);color:var(--warning);}
+    .badge-progress{background:var(--accent-dim);color:var(--accent);}
+    .badge-critical{background:var(--danger-dim);color:var(--danger);}
 
-  /* ===== FAQ ===== */
-  .faq-wrap{max-width:820px;margin:0 auto;}
-  .faq-item{
-    background:rgba(17,24,39,0.6);border:1px solid var(--border);border-radius:14px;
-    margin-bottom:14px; overflow:hidden; backdrop-filter:blur(10px);
-  }
-  .faq-q{
-    padding:22px 26px; display:flex;justify-content:space-between;align-items:center;
-    cursor:pointer; font-weight:600; font-size:15.5px;
-  }
-  .faq-q .plus{transition:transform .3s ease;color:var(--accent);font-size:20px;}
-  .faq-item.open .plus{transform:rotate(45deg);}
-  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-  .faq-a p{padding:0 26px 22px;color:var(--text-gray);font-size:14.5px;line-height:1.7;}
+    .back-top{position:fixed; bottom:28px; right:28px; z-index:60;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center; color:white; font-size:18px;box-shadow:0 6px 20px rgba(59,130,246,0.4); opacity:0; pointer-events:none;transition:opacity .3s ease, transform .3s ease;}
+    .back-top.show{opacity:1;pointer-events:auto;}
+    .back-top:hover{transform:translateY(-4px);}
 
-  /* ===== CTA BAND ===== */
-  .cta-band{
-    max-width:1240px;margin:0 auto; border-radius:24px; padding:70px 50px; text-align:center;
-    background:linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15));
-    border:1px solid rgba(59,130,246,0.25); position:relative; overflow:hidden;
-  }
-  .cta-band h2{font-size:34px;font-weight:700;margin-bottom:16px;letter-spacing:-1px;}
-  .cta-band p{color:var(--text-gray);margin-bottom:30px;font-size:16px;}
-  .cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+    /* ==========================================================================
+       AUTH VIEW
+       ========================================================================== */
+    .auth-shell{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+    .auth-side{position:relative; overflow:hidden; padding:56px; display:flex; flex-direction:column; justify-content:space-between;background:linear-gradient(160deg,var(--bg-secondary),var(--bg));}
+    .auth-side h2{font-size:30px;line-height:1.25;max-width:380px;margin:20px 0;}
+    .auth-side p{color:var(--text-gray);max-width:340px;line-height:1.7;font-size:14.5px;}
+    .auth-quote{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;backdrop-filter:blur(10px);max-width:360px;}
+    .auth-form-side{display:flex;align-items:center;justify-content:center;padding:40px;}
+    .auth-card{width:100%;max-width:400px;}
+    .auth-tabs{display:flex;gap:8px;background:var(--panel);border:1px solid var(--border);padding:6px;border-radius:12px;margin-bottom:28px;}
+    .auth-tabs button{flex:1;padding:10px;border-radius:8px;font-weight:600;font-size:13.5px;color:var(--text-gray);transition:all .2s ease;}
+    .auth-tabs button.active{background:var(--accent);color:white;}
+    .field{position:relative;margin-bottom:20px;}
+    .field input{width:100%;padding:20px 16px 8px;background:var(--panel-solid);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14.5px;transition:border-color .2s ease;}
+    .field input:focus{border-color:var(--accent);}
+    .field label{position:absolute;left:16px;top:16px;color:var(--text-faint);font-size:14.5px;pointer-events:none;transition:all .18s ease;}
+    .field input:focus + label, .field input.filled + label{top:7px;font-size:10.5px;color:var(--accent);letter-spacing:.3px;}
+    .field .err-msg{color:var(--danger);font-size:12px;margin-top:6px;display:none;}
+    .field.error input{border-color:var(--danger);}
+    .field.error .err-msg{display:block;}
+    .field-check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-gray);margin-bottom:22px;}
+    .divider-txt{text-align:center;color:var(--text-faint);font-size:12px;margin:20px 0;}
+    .auth-switch{text-align:center;font-size:13.5px;color:var(--text-gray);margin-top:20px;}
+    .auth-switch button{color:var(--accent);font-weight:600;}
+    @media(max-width:900px){.auth-shell{grid-template-columns:1fr;}.auth-side{display:none;}}
 
-  /* ===== FOOTER ===== */
-  footer{
-    border-top:1px solid var(--border); padding:70px 32px 30px; position:relative;z-index:1;
-  }
-  .footer-grid{
-    max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:40px;
-    padding-bottom:50px;
-  }
-  .footer-brand p{color:var(--text-gray);font-size:14px;margin-top:16px;line-height:1.7;max-width:280px;}
-  .footer-col h5{font-size:14px;margin-bottom:18px;color:var(--text);}
-  .footer-col a{display:block;color:var(--text-gray);font-size:14px;margin-bottom:12px;transition:color .2s;}
-  .footer-col a:hover{color:var(--accent);}
-  .footer-bottom{
-    max-width:1240px;margin:0 auto;padding-top:26px;border-top:1px solid var(--border);
-    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
-    color:var(--text-gray);font-size:13px;
-  }
-  .socials{display:flex;gap:12px;}
-  .socials a{
-    width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.04);
-    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-    transition:all .25s ease;
-  }
-  .socials a:hover{background:rgba(59,130,246,0.15);border-color:var(--accent);}
-  @media(max-width:900px){.footer-grid{grid-template-columns:repeat(2,1fr);}}
+    /* ==========================================================================
+       DASHBOARD
+       ========================================================================== */
+    .dash-shell{display:grid;grid-template-columns:260px 1fr;min-height:100vh;}
+    .dash-sidebar{background:var(--panel); border-right:1px solid var(--border); backdrop-filter:blur(16px);padding:26px 20px; display:flex; flex-direction:column; gap:26px; position:sticky; top:0; height:100vh;}
+    .dash-nav{display:flex;flex-direction:column;gap:4px;}
+    .dash-nav button{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:11px;font-size:14px;font-weight:500;color:var(--text-gray);transition:all .2s ease; text-align:left;}
+    .dash-nav button:hover{background:rgba(255,255,255,.05);color:var(--text);}
+    .dash-nav button.active{background:var(--accent-dim);color:var(--accent);}
+    .dash-profile-mini{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--border);}
+    .dash-profile-mini .avatar{width:38px;height:38px;font-size:14px;}
+    .dash-profile-mini .name{font-size:13.5px;font-weight:600;}
+    .dash-profile-mini .role{font-size:11.5px;color:var(--text-gray);}
+    .dash-main{padding:32px 36px 60px;overflow-x:hidden;}
+    .dash-topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .dash-topbar h1{font-size:26px;font-weight:700;letter-spacing:-.5px;}
+    .dash-topbar .sub{color:var(--text-gray);font-size:13.5px;margin-top:4px;}
+    .search-box{display:flex;align-items:center;gap:8px;background:var(--panel-solid);border:1px solid var(--border);padding:10px 14px;border-radius:12px;min-width:220px;}
+    .search-box input{background:none;border:none;color:var(--text);font-size:13.5px;width:100%;}
 
-  /* Report status colors used consistently */
-  .badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;}
-  .badge-resolved{background:rgba(34,197,94,0.15);color:var(--success);}
-  .badge-pending{background:rgba(245,158,11,0.15);color:var(--warning);}
-  .badge-progress{background:rgba(59,130,246,0.15);color:var(--accent);}
-  .badge-critical{background:rgba(239,68,68,0.15);color:var(--danger);}
+    .metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px;}
+    .metric-card{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:22px;backdrop-filter:blur(10px); cursor:grab; position:relative;transition:transform .2s ease, border-color .2s ease;}
+    .metric-card:hover{transform:translateY(-4px);}
+    .metric-card:active{cursor:grabbing;}
+    .metric-card.drag-over{border-color:var(--accent);}
+    .metric-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+    .metric-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+    .metric-num{font-size:30px;font-weight:800;font-family:'Poppins',sans-serif;}
+    .metric-label{color:var(--text-gray);font-size:12.5px;margin-top:4px;}
+    .dash-shell[data-density="compact"] .metric-card{padding:14px;}
+    .dash-shell[data-density="compact"] .metric-num{font-size:24px;}
 
-  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease, transform .7s ease;}
-  .reveal.visible{opacity:1;transform:translateY(0);}
+    .analytics-row{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:28px;}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;backdrop-filter:blur(10px);}
+    .panel h3{font-size:15px;margin-bottom:18px;font-weight:600;}
+    .bars{display:flex;align-items:flex-end;gap:14px;height:160px;}
+    .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;justify-content:flex-end;height:100%;}
+    .bar-col .bar{width:100%;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,var(--accent-2),var(--accent));transition:height .6s ease;}
+    .bar-col .bar-label{font-size:10.5px;color:var(--text-gray);text-align:center;}
+    .donut-wrap{display:flex;align-items:center;gap:18px;}
+    .donut-legend{display:flex;flex-direction:column;gap:10px;font-size:12.5px;}
+    .donut-legend .row{display:flex;align-items:center;gap:8px;}
+    .donut-legend .sw{width:10px;height:10px;border-radius:3px;}
 
-  .back-top{
-    position:fixed; bottom:28px; right:28px; z-index:60;
-    width:48px;height:48px;border-radius:50%;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    display:flex;align-items:center;justify-content:center; color:white; font-size:18px;
-    box-shadow:0 6px 20px rgba(59,130,246,0.4); opacity:0; pointer-events:none;
-    transition:opacity .3s ease, transform .3s ease;
-  }
-  .back-top.show{opacity:1;pointer-events:auto;}
-  .back-top:hover{transform:translateY(-4px);}
-</style>
+    .filters-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+    .chip{padding:8px 16px;border-radius:999px;font-size:12.5px;font-weight:500;background:var(--panel-solid);border:1px solid var(--border);color:var(--text-gray);transition:all .2s ease;}
+    .chip.active{background:var(--accent);color:white;border-color:transparent;}
+    .filters-row select{background:var(--panel-solid);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:10px;font-size:12.5px;}
+
+    .issue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+    .issue-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;backdrop-filter:blur(10px);transition:transform .2s ease, border-color .2s ease;}
+    .issue-card:hover{transform:translateY(-4px);border-color:rgba(59,130,246,0.35);}
+    .issue-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;}
+    .issue-id{font-size:11px;color:var(--text-faint);}
+    .issue-title{font-size:14.5px;font-weight:600;margin:6px 0 8px;}
+    .issue-meta{display:flex;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--text-gray);margin-bottom:12px;}
+    .issue-meta span{display:flex;align-items:center;gap:4px;}
+    .issue-foot{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-faint);}
+    .upvote-btn{display:flex;align-items:center;gap:6px;color:var(--text-gray);font-size:12.5px;padding:6px 10px;border-radius:8px;background:var(--panel-solid);border:1px solid var(--border);}
+    .upvote-btn:hover{color:var(--accent);border-color:var(--accent);}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--text-gray);}
+    .empty-state .ic{font-size:34px;margin-bottom:12px;}
+
+    .profile-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .profile-edit-grid label{display:block;font-size:12px;color:var(--text-gray);margin-bottom:6px;}
+    .profile-edit-grid input,.profile-edit-grid textarea{width:100%;padding:11px 14px;background:var(--panel-solid);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13.5px;margin-bottom:14px;}
+    .profile-preview{display:flex;align-items:center;gap:16px;padding:18px;border-radius:14px;background:var(--panel-solid);border:1px solid var(--border);margin-bottom:20px;}
+    .profile-preview .avatar{width:52px;height:52px;font-size:18px;}
+
+    @media(max-width:1000px){
+      .dash-shell{grid-template-columns:1fr;}
+      .dash-sidebar{position:relative;height:auto;flex-direction:row;align-items:center;justify-content:space-between;padding:14px 18px;}
+      .dash-nav{flex-direction:row;overflow-x:auto;}
+      .metrics-grid,.analytics-row{grid-template-columns:1fr 1fr;}
+      .profile-edit-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:640px){.metrics-grid{grid-template-columns:1fr 1fr;}.analytics-row{grid-template-columns:1fr;}}
+
+    /* ===== MODAL / TOAST ===== */
+    .modal-overlay{position:fixed;inset:0;z-index:100;background:rgba(10,12,15,0.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.open{display:flex;}
+    .modal-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:20px;padding:30px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;box-shadow:0 40px 80px -20px rgba(0,0,0,.6);transform:translateY(14px);opacity:0;transition:all .25s ease;}
+    .modal-overlay.open .modal-card{transform:translateY(0);opacity:1;}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;}
+    .modal-head h3{font-size:19px;font-weight:700;}
+    .modal-close{width:32px;height:32px;border-radius:9px;background:var(--panel-solid);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-gray);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .form-group{margin-bottom:16px;}
+    .form-group label{display:block;font-size:12px;color:var(--text-gray);margin-bottom:6px;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:11px 14px;background:var(--panel-solid);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13.5px;}
+    .form-group textarea{resize:vertical;min-height:80px;}
+    .severity-row{display:flex;gap:8px;}
+    .sev-btn{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--panel-solid);font-size:12.5px;color:var(--text-gray);text-align:center;}
+    .sev-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);}
+    .form-actions{display:flex;gap:10px;margin-top:20px;}
+
+    .toast-stack{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;}
+    .toast{background:var(--bg-secondary);border:1px solid var(--border);border-left:3px solid var(--success);padding:14px 18px;border-radius:12px;font-size:13.5px;box-shadow:0 20px 40px -14px rgba(0,0,0,.5);animation:toastIn .3s ease forwards; min-width:240px;}
+    .toast.err{border-left-color:var(--danger);}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+  </style>
 </head>
 <body>
 
 <div class="bg-glow"></div>
 
-<div class="announce">📣 <b>New!</b> AI-powered duplicate detection now live across all communities &nbsp;→</div>
+<!-- =========================================================
+     LANDING VIEW
+     ========================================================= -->
+<div class="view active enter" id="view-landing">
+  <div class="announce">📣 <b>New!</b> AI-powered duplicate detection now live across all communities &nbsp;→</div>
+  <nav>
+    <div class="nav-inner">
+      <div class="brand"><div class="brand-mark">F</div>Fixly</div>
+      <div class="nav-pill">
+        <button class="active" data-scroll="top">Product</button>
+        <button data-scroll="how">How it Works</button>
+        <button data-scroll="features">Features</button>
+        <button data-scroll="faq">FAQ</button>
+      </div>
+      <div class="nav-actions">
+        <button class="theme-switch" id="themeToggleLanding" title="Toggle theme"><div class="knob">🔆</div></button>
+        <button class="btn btn-ghost" data-goto="auth" data-mode="login">Login</button>
+        <button class="btn btn-primary" data-goto="auth" data-mode="signup">Report an Issue →</button>
+      </div>
+    </div>
+  </nav>
 
-<nav>
-  <div class="nav-inner">
-    <div class="brand"><div class="brand-mark">F</div>Fixly</div>
-    <div class="nav-pill">
-      <a href="#" class="active">Product</a>
-      <a href="#how">How it Works</a>
-      <a href="#features">Features</a>
-      <a href="#faq">FAQ</a>
+  <section class="hero">
+    <div>
+      <div class="hero-tag"><span class="dot"></span> Live in 120+ communities</div>
+      <h1>Report Civic Issues.<br>Track Progress.<br><span>Improve Your Community.</span></h1>
+      <p>Fixly connects residents, campuses, and local authorities on one platform — so every pothole, leak, or outage gets seen, verified, and fixed faster.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary btn-lg" data-goto="auth" data-mode="signup">Report an Issue →</button>
+        <button class="btn btn-outline btn-lg" data-scroll="features">Explore Issues</button>
+      </div>
+      <div class="hero-meta">
+        <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> No credit card required</div>
+        <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Free for residents</div>
+        <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> GDPR compliant</div>
+      </div>
     </div>
-    <div class="nav-actions">
-      <a href="javascript:void(0)" class="btn btn-ghost">Login</a>
-      <a href="javascript:void(0)" class="btn btn-primary">Report an Issue</a>
-    </div>
-  </div>
-</nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div>
-    <div class="hero-tag"><span class="dot"></span> Live in 120+ communities</div>
-    <h1>Report Civic Issues.<br>Track Progress.<br><span>Improve Your Community.</span></h1>
-    <p>Fixly connects residents, campuses, and local authorities on one platform — so every pothole, leak, or outage gets seen, verified, and fixed faster.</p>
-    <div class="hero-cta">
-      <a href="javascript:void(0)" class="btn btn-primary btn-lg">Report an Issue →</a>
-      <a href="javascript:void(0)" class="btn btn-outline btn-lg">Explore Issues</a>
-    </div>
-    <div class="hero-meta">
-      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> No credit card required</div>
-      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Free for residents</div>
-      <div><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> GDPR compliant</div>
-    </div>
-  </div>
-
-  <div class="hero-visual">
-    <div class="city-glow-orb"></div>
-    <svg class="city-svg" viewBox="0 0 400 400" fill="none">
-      <defs>
-        <linearGradient id="bgrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#1E293B"/>
-          <stop offset="1" stop-color="#0F172A"/>
-        </linearGradient>
-        <linearGradient id="glow1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#60A5FA"/>
-          <stop offset="1" stop-color="#3B82F6"/>
-        </linearGradient>
-      </defs>
-      <g opacity="0.9">
-        <rect x="60" y="180" width="46" height="160" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
-        <rect x="120" y="120" width="56" height="220" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.5"/>
-        <rect x="190" y="150" width="46" height="190" rx="4" fill="url(#bgrad)" stroke="#8B5CF6" stroke-opacity="0.4"/>
-        <rect x="250" y="90" width="60" height="250" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.55"/>
-        <rect x="320" y="200" width="42" height="140" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
-        <!-- windows -->
-        <g fill="#60A5FA" opacity="0.85">
-          <rect x="70" y="195" width="8" height="8" rx="1"/><rect x="88" y="195" width="8" height="8" rx="1"/>
-          <rect x="70" y="215" width="8" height="8" rx="1"/><rect x="88" y="215" width="8" height="8" rx="1"/>
-          <rect x="70" y="235" width="8" height="8" rx="1"/><rect x="88" y="235" width="8" height="8" rx="1"/>
-          <rect x="134" y="140" width="8" height="8" rx="1"/><rect x="152" y="140" width="8" height="8" rx="1"/>
-          <rect x="134" y="160" width="8" height="8" rx="1"/><rect x="152" y="160" width="8" height="8" rx="1"/>
-          <rect x="134" y="180" width="8" height="8" rx="1"/><rect x="152" y="180" width="8" height="8" rx="1"/>
-          <rect x="134" y="200" width="8" height="8" rx="1"/><rect x="152" y="200" width="8" height="8" rx="1"/>
-          <rect x="264" y="110" width="8" height="8" rx="1"/><rect x="282" y="110" width="8" height="8" rx="1"/>
-          <rect x="264" y="130" width="8" height="8" rx="1"/><rect x="282" y="130" width="8" height="8" rx="1"/>
-          <rect x="264" y="150" width="8" height="8" rx="1"/><rect x="282" y="150" width="8" height="8" rx="1"/>
-          <rect x="264" y="170" width="8" height="8" rx="1"/><rect x="282" y="170" width="8" height="8" rx="1"/>
+    <div class="hero-visual">
+      <div class="city-glow-orb"></div>
+      <svg class="city-svg" viewBox="0 0 400 400" fill="none">
+        <defs>
+          <linearGradient id="bgrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E293B"/><stop offset="1" stop-color="#0F172A"/></linearGradient>
+          <linearGradient id="glow1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#3B82F6"/></linearGradient>
+        </defs>
+        <g opacity="0.9">
+          <rect x="60" y="180" width="46" height="160" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
+          <rect x="120" y="120" width="56" height="220" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.5"/>
+          <rect x="190" y="150" width="46" height="190" rx="4" fill="url(#bgrad)" stroke="#8B5CF6" stroke-opacity="0.4"/>
+          <rect x="250" y="90" width="60" height="250" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.55"/>
+          <rect x="320" y="200" width="42" height="140" rx="4" fill="url(#bgrad)" stroke="#3B82F6" stroke-opacity="0.4"/>
+          <g fill="#60A5FA" opacity="0.85">
+            <rect x="70" y="195" width="8" height="8" rx="1"/><rect x="88" y="195" width="8" height="8" rx="1"/>
+            <rect x="70" y="215" width="8" height="8" rx="1"/><rect x="88" y="215" width="8" height="8" rx="1"/>
+            <rect x="70" y="235" width="8" height="8" rx="1"/><rect x="88" y="235" width="8" height="8" rx="1"/>
+            <rect x="134" y="140" width="8" height="8" rx="1"/><rect x="152" y="140" width="8" height="8" rx="1"/>
+            <rect x="134" y="160" width="8" height="8" rx="1"/><rect x="152" y="160" width="8" height="8" rx="1"/>
+            <rect x="134" y="180" width="8" height="8" rx="1"/><rect x="152" y="180" width="8" height="8" rx="1"/>
+            <rect x="134" y="200" width="8" height="8" rx="1"/><rect x="152" y="200" width="8" height="8" rx="1"/>
+            <rect x="264" y="110" width="8" height="8" rx="1"/><rect x="282" y="110" width="8" height="8" rx="1"/>
+            <rect x="264" y="130" width="8" height="8" rx="1"/><rect x="282" y="130" width="8" height="8" rx="1"/>
+            <rect x="264" y="150" width="8" height="8" rx="1"/><rect x="282" y="150" width="8" height="8" rx="1"/>
+            <rect x="264" y="170" width="8" height="8" rx="1"/><rect x="282" y="170" width="8" height="8" rx="1"/>
+          </g>
+          <circle cx="280" cy="70" r="18" fill="url(#glow1)" opacity="0.5"/>
         </g>
-        <circle cx="280" cy="70" r="18" fill="url(#glow1)" opacity="0.5"/>
-      </g>
-      <ellipse cx="200" cy="345" rx="170" ry="14" fill="#3B82F6" opacity="0.12"/>
-    </svg>
+        <ellipse cx="200" cy="345" rx="170" ry="14" fill="#3B82F6" opacity="0.12"/>
+      </svg>
+      <div id="heroFloatCards"><!-- injected from appState.heroHighlights --></div>
+    </div>
+  </section>
 
-    <div class="float-card fc1">
-      <div class="ic" style="background:rgba(239,68,68,0.15);">🕳️</div>
-      <div><div style="font-weight:600;">Pothole reported</div><span class="badge badge-critical">Critical</span></div>
-    </div>
-    <div class="float-card fc2">
-      <div class="ic" style="background:rgba(34,197,94,0.15);">✅</div>
-      <div><div style="font-weight:600;">Streetlight fixed</div><span class="badge badge-resolved">Resolved</span></div>
-    </div>
-    <div class="float-card fc3">
-      <div class="ic" style="background:rgba(59,130,246,0.15);">📍</div>
-      <div><div style="font-weight:600;">Water leak nearby</div><span class="badge badge-progress">In Progress</span></div>
-    </div>
-  </div>
-</section>
+  <div class="stats-wrap"><div class="stats-grid" id="statsGrid"><!-- injected --></div></div>
 
-<!-- STATS -->
-<div class="stats-wrap">
-  <div class="stats-grid">
-    <div class="stat-card reveal"><div class="stat-num" data-target="48210">0</div><div class="stat-label">Issues Reported</div></div>
-    <div class="stat-card reveal"><div class="stat-num" data-target="39875">0</div><div class="stat-label">Issues Resolved</div></div>
-    <div class="stat-card reveal"><div class="stat-num" data-target="126400">0</div><div class="stat-label">Active Users</div></div>
-    <div class="stat-card reveal"><div class="stat-num" data-target="1230">0</div><div class="stat-label">Communities Joined</div></div>
+  <section class="section" id="how">
+    <div class="section-head reveal">
+      <span class="eyebrow">Process</span>
+      <h2>How it works</h2>
+      <p>Three simple steps to get civic issues seen, prioritized, and resolved by the right people.</p>
+    </div>
+    <div class="steps" id="howSteps"><!-- injected --></div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-head reveal">
+      <span class="eyebrow">Capabilities</span>
+      <h2>Everything your community needs</h2>
+      <p>Purpose-built tools for residents, volunteers, and administrators alike.</p>
+    </div>
+    <div class="features-grid" id="featuresGrid"><!-- injected --></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head reveal">
+      <span class="eyebrow">Testimonials</span>
+      <h2>Loved by communities</h2>
+      <p>What residents, students, and officials are saying about Fixly.</p>
+    </div>
+    <div class="testi-grid" id="testiGrid"><!-- injected --></div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="section-head reveal"><span class="eyebrow">Support</span><h2>Frequently asked questions</h2></div>
+    <div class="faq-wrap" id="faqWrap"><!-- injected --></div>
+  </section>
+
+  <section class="section" style="padding-top:20px;">
+    <div class="cta-band reveal">
+      <h2>Ready to improve your community?</h2>
+      <p>Join thousands already reporting, tracking, and resolving civic issues with Fixly.</p>
+      <div class="cta-actions">
+        <button class="btn btn-primary btn-lg" data-goto="auth" data-mode="signup">Get Started Free</button>
+        <button class="btn btn-outline btn-lg" data-goto="auth" data-mode="login">Schedule a Demo</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand"><div class="brand-mark">F</div>Fixly</div>
+        <p>The civic issue reporting and tracking platform for modern communities, neighborhoods, and campuses.</p>
+      </div>
+      <div class="footer-col"><h5>Product</h5><span>Report an Issue</span><span>Explore Issues</span><span>Live Map</span><span>Leaderboard</span></div>
+      <div class="footer-col"><h5>Company</h5><span>About</span><span>Community Guidelines</span><span>Help Center</span><span>Contact</span></div>
+      <div class="footer-col"><h5>Legal</h5><span>Privacy Policy</span><span>Terms of Service</span></div>
+      <div class="footer-col">
+        <h5>Newsletter</h5>
+        <p style="color:var(--text-gray);font-size:13px;margin-bottom:12px;">Get civic updates monthly.</p>
+        <div style="display:flex;gap:8px;"><input type="email" placeholder="Email" style="flex:1;background:var(--panel-solid);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13px;"></div>
+      </div>
+    </div>
+    <div class="footer-bottom"><div>© 2026 Fixly. All rights reserved.</div><div>Made for better communities, everywhere.</div></div>
+  </footer>
+</div>
+
+<!-- =========================================================
+     AUTH VIEW
+     ========================================================= -->
+<div class="view" id="view-auth">
+  <div class="auth-shell">
+    <div class="auth-side">
+      <div class="brand" style="cursor:pointer;" data-goto="landing"><div class="brand-mark">F</div>Fixly</div>
+      <div>
+        <h2>Every report moves your city forward.</h2>
+        <p>Join residents, campus teams, and ward officers already tracking civic issues end to end — from first photo to final fix.</p>
+      </div>
+      <div class="auth-quote">
+        <div class="stars">★★★★★</div>
+        <p style="font-size:13.5px;color:var(--text-gray);line-height:1.6;">"Analytics dashboards helped our municipality cut average resolution time by 40% this year."</p>
+        <div style="margin-top:10px;font-size:12.5px;font-weight:600;">Priya Sharma, Ward Officer</div>
+      </div>
+    </div>
+    <div class="auth-form-side">
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button class="active" id="tabLogin" data-authmode="login">Log In</button>
+          <button id="tabSignup" data-authmode="signup">Sign Up</button>
+        </div>
+        <form id="authForm" novalidate>
+          <div class="field" id="fieldName" style="display:none;">
+            <input type="text" id="authName" placeholder=" ">
+            <label>Full name</label>
+            <div class="err-msg">Please enter your name.</div>
+          </div>
+          <div class="field" id="fieldEmail">
+            <input type="email" id="authEmail" placeholder=" ">
+            <label>Email address</label>
+            <div class="err-msg">Enter a valid email address.</div>
+          </div>
+          <div class="field" id="fieldPass">
+            <input type="password" id="authPass" placeholder=" ">
+            <label>Password</label>
+            <div class="err-msg">Password must be at least 6 characters.</div>
+          </div>
+          <div class="field-check"><input type="checkbox" id="authRemember"><label for="authRemember">Keep me signed in</label></div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="authSubmit">Log In</button>
+        </form>
+        <div class="divider-txt">— or continue as guest —</div>
+        <button class="btn btn-outline btn-block" id="guestBtn">Explore demo dashboard</button>
+        <div class="auth-switch"><span id="authSwitchText">Don't have an account?</span> <button id="authSwitchBtn">Sign up</button></div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- HOW IT WORKS -->
-<section class="section" id="how">
-  <div class="section-head reveal">
-    <span class="eyebrow">Process</span>
-    <h2>How it works</h2>
-    <p>Three simple steps to get civic issues seen, prioritized, and resolved by the right people.</p>
-  </div>
-  <div class="steps">
-    <div class="step-card reveal">
-      <div class="step-num">01</div>
-      <h3>📸 Report</h3>
-      <p>Snap a photo, tag the GPS location, choose a category and severity — submit in under 60 seconds.</p>
-    </div>
-    <div class="step-card reveal">
-      <div class="step-num">02</div>
-      <h3>👍 Community Upvotes</h3>
-      <p>Neighbors verify and upvote real issues, helping surface what matters most to your community.</p>
-    </div>
-    <div class="step-card reveal">
-      <div class="step-num">03</div>
-      <h3>🏛️ Authority Resolves</h3>
-      <p>The right department is auto-assigned, tracked, and updates flow back to you in real time.</p>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="section" id="features">
-  <div class="section-head reveal">
-    <span class="eyebrow">Capabilities</span>
-    <h2>Everything your community needs</h2>
-    <p>Purpose-built tools for residents, volunteers, and administrators alike.</p>
-  </div>
-  <div class="features-grid">
-    <div class="feature-card reveal"><div class="feature-ic">📍</div><h4>GPS Location Detection</h4><p>Pinpoint exact issue locations automatically.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🖼️</div><h4>Media Uploads</h4><p>Attach images, video, and audio as proof.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">📡</div><h4>Live Status Tracking</h4><p>Follow every issue from report to resolution.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🗳️</div><h4>Community Voting</h4><p>Upvote issues to boost visibility and priority.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🤖</div><h4>AI Duplicate Detection</h4><p>Automatically merges repeated reports.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🔔</div><h4>Smart Notifications</h4><p>Real-time alerts on status and nearby issues.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🕶️</div><h4>Anonymous Reporting</h4><p>Report safely without revealing your identity.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">✔️</div><h4>Verified Users</h4><p>Trust indicators reduce spam and abuse.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">🏢</div><h4>Department Assignment</h4><p>Routes issues to the right authority instantly.</p></div>
-    <div class="feature-card reveal"><div class="feature-ic">📊</div><h4>Analytics Dashboard</h4><p>Track resolution rates and civic performance.</p></div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section class="section">
-  <div class="section-head reveal">
-    <span class="eyebrow">Testimonials</span>
-    <h2>Loved by communities</h2>
-    <p>What residents, students, and officials are saying about Fixly.</p>
-  </div>
-  <div class="testi-grid">
-    <div class="testi-card reveal">
-      <div class="stars">★★★★★</div>
-      <p>"Our streetlight outage was fixed in three days instead of three months. Fixly actually gets results."</p>
-      <div class="testi-user">
-        <div class="avatar" style="background:linear-gradient(135deg,#3B82F6,#2563EB);">RA</div>
-        <div><div class="name">Riya Anand</div><div class="role">Resident, Green Valley Society</div></div>
+<!-- =========================================================
+     DASHBOARD VIEW
+     ========================================================= -->
+<div class="view" id="view-dashboard">
+  <div class="dash-shell" id="dashShell" data-density="comfortable">
+    <aside class="dash-sidebar">
+      <div class="brand" style="cursor:pointer;" data-goto="landing"><div class="brand-mark">F</div>Fixly</div>
+      <div class="dash-profile-mini" id="dashProfileMini"><!-- injected --></div>
+      <nav class="dash-nav" id="dashNav">
+        <button class="active" data-panel="overview">🏠 Overview</button>
+        <button data-panel="reports">🗂️ My Reports</button>
+        <button data-panel="profile">👤 Profile</button>
+        <button data-panel="settings">⚙️ Settings</button>
+      </nav>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--panel-solid);border:1px solid var(--border);border-radius:12px;">
+          <span style="font-size:12.5px;color:var(--text-gray);">Theme</span>
+          <button class="theme-switch" id="themeToggleDash"><div class="knob">🔆</div></button>
+        </div>
+        <button class="btn btn-ghost btn-block" id="logoutBtn">Log out</button>
       </div>
-    </div>
-    <div class="testi-card reveal">
-      <div class="stars">★★★★★</div>
-      <p>"The campus maintenance team finally has visibility into every complaint, ranked by real urgency."</p>
-      <div class="testi-user">
-        <div class="avatar" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9);">DK</div>
-        <div><div class="name">Daniel Kim</div><div class="role">Facilities Head, Northbridge College</div></div>
-      </div>
-    </div>
-    <div class="testi-card reveal">
-      <div class="stars">★★★★★</div>
-      <p>"Analytics dashboards helped our municipality cut average resolution time by 40% this year."</p>
-      <div class="testi-user">
-        <div class="avatar" style="background:linear-gradient(135deg,#22C55E,#16A34A);">PS</div>
-        <div><div class="name">Priya Sharma</div><div class="role">Ward Officer, City Council</div></div>
-      </div>
-    </div>
-  </div>
-</section>
+    </aside>
 
-<!-- FAQ -->
-<section class="section" id="faq">
-  <div class="section-head reveal">
-    <span class="eyebrow">Support</span>
-    <h2>Frequently asked questions</h2>
-  </div>
-  <div class="faq-wrap">
-    <div class="faq-item reveal">
-      <div class="faq-q">Is Fixly free for residents? <span class="plus">+</span></div>
-      <div class="faq-a"><p>Yes, reporting and tracking issues is completely free for residents, students, and community members.</p></div>
-    </div>
-    <div class="faq-item reveal">
-      <div class="faq-q">Can I report an issue anonymously? <span class="plus">+</span></div>
-      <div class="faq-a"><p>Absolutely. Toggle Anonymous Reporting on the report form to hide your identity from the public feed.</p></div>
-    </div>
-    <div class="faq-item reveal">
-      <div class="faq-q">How does AI duplicate detection work? <span class="plus">+</span></div>
-      <div class="faq-a"><p>Fixly compares location, category, and image similarity to merge duplicate reports automatically, reducing noise for departments.</p></div>
-    </div>
-    <div class="faq-item reveal">
-      <div class="faq-q">Can my college campus or society join? <span class="plus">+</span></div>
-      <div class="faq-a"><p>Yes — Fixly supports neighborhoods, residential societies, and college campuses with dedicated community spaces.</p></div>
-    </div>
-  </div>
-</section>
+    <main class="dash-main">
+      <div class="dash-panel" data-panel-content="overview">
+        <div class="dash-topbar">
+          <div><h1 id="dashGreeting">Welcome back</h1><div class="sub">Here's what's happening across your reports today.</div></div>
+          <div style="display:flex;gap:12px;">
+            <div class="search-box">🔎 <input type="text" id="issueSearch" placeholder="Search your reports…"></div>
+            <button class="btn btn-primary" id="newIssueBtn">+ Report New Issue</button>
+          </div>
+        </div>
 
-<!-- CTA BAND -->
-<section class="section" style="padding-top:20px;">
-  <div class="cta-band reveal">
-    <h2>Ready to improve your community?</h2>
-    <p>Join thousands already reporting, tracking, and resolving civic issues with Fixly.</p>
-    <div class="cta-actions">
-      <a href="javascript:void(0)" class="btn btn-primary btn-lg">Get Started Free</a>
-      <a href="javascript:void(0)" class="btn btn-outline btn-lg">Schedule a Demo</a>
-    </div>
-  </div>
-</section>
+        <div class="metrics-grid" id="metricsGrid"><!-- injected, draggable --></div>
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-grid">
-    <div class="footer-brand">
-      <div class="brand"><div class="brand-mark">F</div>Fixly</div>
-      <p>The civic issue reporting and tracking platform for modern communities, neighborhoods, and campuses.</p>
-      <div class="socials" style="margin-top:20px;">
-        <a href="javascript:void(0)">𝕏</a>
-        <a href="javascript:void(0)">in</a>
-        <a href="javascript:void(0)">◎</a>
-        <a href="javascript:void(0)">✉</a>
+        <div class="analytics-row">
+          <div class="panel"><h3>Reports by category</h3><div class="bars" id="barsChart"><!-- injected --></div></div>
+          <div class="panel">
+            <h3>Status breakdown</h3>
+            <div class="donut-wrap">
+              <svg width="130" height="130" viewBox="0 0 130 130" id="donutChart"></svg>
+              <div class="donut-legend" id="donutLegend"><!-- injected --></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;"><h3 style="margin:0;">Recent reports</h3></div>
+          <div class="filters-row" id="filtersRow"><!-- injected --></div>
+          <div class="issue-grid" id="issueGrid"><!-- injected --></div>
+        </div>
       </div>
-    </div>
-    <div class="footer-col">
-      <h5>Product</h5>
-      <a href="javascript:void(0)">Report an Issue</a>
-      <a href="javascript:void(0)">Explore Issues</a>
-      <a href="javascript:void(0)">Live Map</a>
-      <a href="javascript:void(0)">Leaderboard</a>
-    </div>
-    <div class="footer-col">
-      <h5>Company</h5>
-      <a href="javascript:void(0)">About</a>
-      <a href="javascript:void(0)">Community Guidelines</a>
-      <a href="javascript:void(0)">Help Center</a>
-      <a href="javascript:void(0)">Contact</a>
-    </div>
-    <div class="footer-col">
-      <h5>Legal</h5>
-      <a href="javascript:void(0)">Privacy Policy</a>
-      <a href="javascript:void(0)">Terms of Service</a>
-    </div>
-    <div class="footer-col">
-      <h5>Newsletter</h5>
-      <p style="color:var(--text-gray);font-size:13px;margin-bottom:12px;">Get civic updates monthly.</p>
-      <div style="display:flex;gap:8px;">
-        <input type="email" placeholder="Email" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:white;font-size:13px;">
-      </div>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <div>© 2026 Fixly. All rights reserved.</div>
-    <div>Made for better communities, everywhere.</div>
-  </div>
-</footer>
 
+      <div class="dash-panel" data-panel-content="reports" style="display:none;">
+        <div class="dash-topbar">
+          <div><h1>My Reports</h1><div class="sub">Every issue you've ever filed, all in one place.</div></div>
+          <button class="btn btn-primary" id="newIssueBtn2">+ Report New Issue</button>
+        </div>
+        <div class="filters-row" id="filtersRow2"><!-- injected --></div>
+        <div class="issue-grid" id="issueGridFull"><!-- injected --></div>
+      </div>
+
+      <div class="dash-panel" data-panel-content="profile" style="display:none;">
+        <div class="dash-topbar"><div><h1>Profile</h1><div class="sub">Changes update your dashboard instantly.</div></div></div>
+        <div class="panel" style="max-width:640px;">
+          <div class="profile-preview" id="profilePreview"><!-- injected --></div>
+          <div class="profile-edit-grid">
+            <div><label>Full name</label><input type="text" id="profName"></div>
+            <div><label>Email</label><input type="email" id="profEmail"></div>
+          </div>
+          <label>Bio</label>
+          <textarea id="profBio" rows="3"></textarea>
+          <button class="btn btn-primary" id="profSaveBtn">Save profile</button>
+        </div>
+      </div>
+
+      <div class="dash-panel" data-panel-content="settings" style="display:none;">
+        <div class="dash-topbar"><div><h1>Settings</h1><div class="sub">Tune the dashboard to how you like to work.</div></div></div>
+        <div class="panel" style="max-width:640px;display:flex;flex-direction:column;gap:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-weight:600;font-size:14px;">Appearance</div><div style="font-size:12.5px;color:var(--text-gray);">Switch between dark and light themes.</div></div>
+            <button class="theme-switch" id="themeToggleSettings"><div class="knob">🔆</div></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-weight:600;font-size:14px;">Layout density</div><div style="font-size:12.5px;color:var(--text-gray);">Compact packs more into view; comfortable is roomier.</div></div>
+            <div class="filters-row" style="margin:0;">
+              <button class="chip active" data-density="comfortable">Comfortable</button>
+              <button class="chip" data-density="compact">Compact</button>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--text-faint);">Tip: drag the metric cards on Overview by their corner to reorder your widgets.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- NEW ISSUE MODAL -->
+<div class="modal-overlay" id="issueModal">
+  <div class="modal-card">
+    <div class="modal-head"><h3>Report a new issue</h3><button class="modal-close" id="modalCloseBtn">✕</button></div>
+    <form id="issueForm" novalidate>
+      <div class="form-group"><label>Title</label><input type="text" id="issueTitle" placeholder="e.g. Deep pothole outside Block C"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="issueCategory">
+            <option value="pothole">🕳️ Pothole</option>
+            <option value="streetlight">💡 Streetlight</option>
+            <option value="leak">💧 Water Leak</option>
+            <option value="garbage">🗑️ Garbage</option>
+            <option value="other">📌 Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Location</label><input type="text" id="issueLocation" placeholder="Street / landmark"></div>
+      </div>
+      <div class="form-group">
+        <label>Severity</label>
+        <div class="severity-row" id="severityRow">
+          <button type="button" class="sev-btn" data-sev="low">Low</button>
+          <button type="button" class="sev-btn active" data-sev="medium">Medium</button>
+          <button type="button" class="sev-btn" data-sev="high">High</button>
+          <button type="button" class="sev-btn" data-sev="critical">Critical</button>
+        </div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="issueDesc" placeholder="What did you see? Add any useful detail."></textarea></div>
+      <div class="field-check"><input type="checkbox" id="issueAnon"><label for="issueAnon">Report anonymously</label></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline btn-block" id="useLocationBtn">📍 Use my location</button>
+        <button type="submit" class="btn btn-primary btn-block">Submit Report</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
 <div class="back-top" id="backTop">↑</div>
 
 <script>
-  // Reveal on scroll
-  const revealEls = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.15 });
-  revealEls.forEach(el => io.observe(el));
+  /* ============================================================================
+     FIXLY — vanilla JS SPA. Everything renders from `appState`. Every seeded
+     spot has a `// TODO` marking exactly where a real fetch() call slots in.
+  ============================================================================ */
 
-  // Animated counters
-  const counters = document.querySelectorAll('.stat-num');
-  const counterIO = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const el = entry.target;
-        const target = parseInt(el.dataset.target, 10);
-        const duration = 1800;
-        const start = performance.now();
-        function tick(now) {
-          const progress = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          el.textContent = Math.floor(eased * target).toLocaleString();
-          if (progress < 1) requestAnimationFrame(tick);
-          else el.textContent = target.toLocaleString();
-        }
-        requestAnimationFrame(tick);
-        counterIO.unobserve(el);
-      }
-    });
-  }, { threshold: 0.4 });
-  counters.forEach(c => counterIO.observe(c));
+  /* ---------------------------------------------------------------------------
+     1. STATE
+  --------------------------------------------------------------------------- */
+  const appState = {
+    theme: 'dark',
+    currentView: 'landing',
+    user: null,
 
-  // FAQ accordion
-  document.querySelectorAll('.faq-item').forEach(item => {
-    const q = item.querySelector('.faq-q');
-    const a = item.querySelector('.faq-a');
-    q.addEventListener('click', () => {
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => {
-        i.classList.remove('open');
-        i.querySelector('.faq-a').style.maxHeight = null;
+    ui: {
+      authMode: 'login',
+      dashPanel: 'overview',
+      density: 'comfortable',
+      filters: { status: 'all', search: '' },
+      layoutOrder: ['total', 'resolved', 'progress', 'pending'],
+    },
+
+    // TODO: replace with GET /api/stats
+    platformStats: { reported: 48210, resolved: 39875, activeUsers: 126400, communities: 1230 },
+
+    // TODO: replace with GET /api/highlights — the three floating hero cards
+    heroHighlights: [
+      { icon:'🕳️', bg:'var(--danger-dim)', title:'Pothole reported', badge:'critical', pos:'fc1' },
+      { icon:'✅', bg:'var(--success-dim)', title:'Streetlight fixed', badge:'resolved', pos:'fc2' },
+      { icon:'📍', bg:'var(--accent-dim)', title:'Water leak nearby', badge:'progress', pos:'fc3' },
+    ],
+
+    // TODO: replace with GET /api/content/features etc.
+    features: [
+      { ic:'📍', title:'GPS Location Detection', desc:'Pinpoint exact issue locations automatically.' },
+      { ic:'🖼️', title:'Media Uploads', desc:'Attach images, video, and audio as proof.' },
+      { ic:'📡', title:'Live Status Tracking', desc:'Follow every issue from report to resolution.' },
+      { ic:'🗳️', title:'Community Voting', desc:'Upvote issues to boost visibility and priority.' },
+      { ic:'🤖', title:'AI Duplicate Detection', desc:'Automatically merges repeated reports.' },
+      { ic:'🔔', title:'Smart Notifications', desc:'Real-time alerts on status and nearby issues.' },
+      { ic:'🕶️', title:'Anonymous Reporting', desc:'Report safely without revealing your identity.' },
+      { ic:'✔️', title:'Verified Users', desc:'Trust indicators reduce spam and abuse.' },
+      { ic:'🏢', title:'Department Assignment', desc:'Routes issues to the right authority instantly.' },
+      { ic:'📊', title:'Analytics Dashboard', desc:'Track resolution rates and civic performance.' },
+    ],
+    steps: [
+      { title:'📸 Report', desc:'Snap a photo, tag the GPS location, choose a category and severity — submit in under 60 seconds.' },
+      { title:'👍 Community Upvotes', desc:'Neighbors verify and upvote real issues, helping surface what matters most to your community.' },
+      { title:'🏛️ Authority Resolves', desc:'The right department is auto-assigned, tracked, and updates flow back to you in real time.' },
+    ],
+    testimonials: [
+      { stars:5, quote:'Our streetlight outage was fixed in three days instead of three months. Fixly actually gets results.', name:'Riya Anand', role:'Resident, Green Valley Society', initials:'RA', color:'linear-gradient(135deg,#3B82F6,#2563EB)' },
+      { stars:5, quote:'The campus maintenance team finally has visibility into every complaint, ranked by real urgency.', name:'Daniel Kim', role:'Facilities Head, Northbridge College', initials:'DK', color:'linear-gradient(135deg,#8B5CF6,#6D28D9)' },
+      { stars:5, quote:'Analytics dashboards helped our municipality cut average resolution time by 40% this year.', name:'Priya Sharma', role:'Ward Officer, City Council', initials:'PS', color:'linear-gradient(135deg,#22C55E,#16A34A)' },
+    ],
+    faqs: [
+      { q:'Is Fixly free for residents?', a:'Yes, reporting and tracking issues is completely free for residents, students, and community members.' },
+      { q:'Can I report an issue anonymously?', a:'Absolutely. Toggle Anonymous Reporting on the report form to hide your identity from the public feed.' },
+      { q:'How does AI duplicate detection work?', a:'Fixly compares location, category, and image similarity to merge duplicate reports automatically, reducing noise for departments.' },
+      { q:'Can my college campus or society join?', a:'Yes — Fixly supports neighborhoods, residential societies, and college campuses with dedicated community spaces.' },
+    ],
+
+    // TODO: replace with GET /api/issues?user=me
+    issues: [],
+  };
+
+  const CATEGORY_ICON = { pothole:'🕳️', streetlight:'💡', leak:'💧', garbage:'🗑️', other:'📌' };
+  const CATEGORY_LABEL = { pothole:'Pothole', streetlight:'Streetlight', leak:'Water Leak', garbage:'Garbage', other:'Other' };
+  const STATUS_LABEL = { pending:'Pending', progress:'In Progress', resolved:'Resolved', critical:'Critical' };
+
+  function seedIssues(){
+    const now = Date.now(), day = 86400000;
+    const raw = [
+      ['Deep pothole near Sector 12 crossing','pothole','critical','critical','Sector 12 Main Rd',6,9],
+      ['Streetlight flickering all night','streetlight','pending','medium','Park Street Lane 3',2,4],
+      ['Water leak flooding sidewalk','leak','progress','high','Riverside Ave',11,2],
+      ['Garbage not collected for a week','garbage','pending','medium','Green Valley Society',3,6],
+      ['Broken storm drain cover','other','progress','high','MG Road Junction',5,1],
+      ['Pothole widening after rain','pothole','resolved','medium','Lake View Colony',14,18],
+      ['Dark stretch near campus gate','streetlight','resolved','low','Northbridge College Gate 2',7,12],
+      ['Pipe burst near market','leak','critical','critical','Central Market Rd',20,0.2],
+      ['Overflowing bin at bus stop','garbage','resolved','low','City Bus Stand',4,10],
+      ['Cracked pavement tripping hazard','other','pending','low','Elm Street',1,3],
+    ];
+    return raw.map((r,i)=>({
+      id: 'FX-' + String(1042 + i),
+      title: r[0], category: r[1], status: r[2], severity: r[3], location: r[4],
+      upvotes: r[5], reporter: 'You', anonymous:false,
+      createdAt: new Date(now - r[6]*day),
+    }));
+  }
+  appState.issues = seedIssues();
+
+  /* ---------------------------------------------------------------------------
+     2. UTILITIES
+  --------------------------------------------------------------------------- */
+  function escapeHTML(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function timeAgo(date){
+    const s = Math.floor((Date.now() - date.getTime())/1000);
+    const units = [['year',31536000],['month',2592000],['day',86400],['hour',3600],['minute',60]];
+    for (const [name,secs] of units){
+      const v = Math.floor(s/secs);
+      if (v >= 1) return v + ' ' + name + (v>1?'s':'') + ' ago';
+    }
+    return 'just now';
+  }
+  function badgeFor(status){
+    const map = { pending:['badge-pending','Pending'], progress:['badge-progress','In Progress'], resolved:['badge-resolved','Resolved'], critical:['badge-critical','Critical'] };
+    const [cls,label] = map[status] || map.pending;
+    return `<span class="badge ${cls}">${label}</span>`;
+  }
+  function computeMetrics(issues){
+    return {
+      total: issues.length,
+      resolved: issues.filter(i=>i.status==='resolved').length,
+      progress: issues.filter(i=>i.status==='progress').length,
+      pending: issues.filter(i=>i.status==='pending' || i.status==='critical').length,
+    };
+  }
+  function showToast(msg, isErr){
+    const stack = document.getElementById('toastStack');
+    const t = document.createElement('div');
+    t.className = 'toast' + (isErr ? ' err' : '');
+    t.textContent = msg;
+    stack.appendChild(t);
+    setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(20px)'; setTimeout(()=>t.remove(),300); }, 3200);
+  }
+  function initials(name){
+    return (name||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()).join('') || '?';
+  }
+
+  /* ---------------------------------------------------------------------------
+     3. VIEW ROUTER
+  --------------------------------------------------------------------------- */
+  function goTo(name){
+    const current = document.querySelector('.view.active');
+    const next = document.getElementById('view-' + name);
+    if (!next || current === next) return;
+    current.classList.remove('active','enter');
+    next.classList.add('active');
+    requestAnimationFrame(()=> next.classList.add('enter'));
+    appState.currentView = name;
+    window.scrollTo(0,0);
+    if (name === 'dashboard') renderDashboard();
+  }
+
+  /* ---------------------------------------------------------------------------
+     4. LANDING RENDERERS
+  --------------------------------------------------------------------------- */
+  function renderHeroCards(){
+    document.getElementById('heroFloatCards').innerHTML = appState.heroHighlights.map(h=>`
+      <div class="float-card ${h.pos}">
+        <div class="ic" style="background:${h.bg};">${h.icon}</div>
+        <div><div style="font-weight:600;">${h.title}</div>${badgeFor(h.badge)}</div>
+      </div>
+    `).join('');
+  }
+  function renderStats(){
+    const defs = [['reported','Issues Reported'],['resolved','Issues Resolved'],['activeUsers','Active Users'],['communities','Communities Joined']];
+    document.getElementById('statsGrid').innerHTML = defs.map(([key,label])=>`
+      <div class="stat-card reveal"><div class="stat-num" data-target="${appState.platformStats[key]}">0</div><div class="stat-label">${label}</div></div>
+    `).join('');
+  }
+  function renderSteps(){
+    document.getElementById('howSteps').innerHTML = appState.steps.map((s,i)=>`
+      <div class="step-card reveal"><div class="step-num">0${i+1}</div><h3>${s.title}</h3><p>${s.desc}</p></div>
+    `).join('');
+  }
+  function renderFeatures(){
+    document.getElementById('featuresGrid').innerHTML = appState.features.map(f=>`
+      <div class="feature-card reveal"><div class="feature-ic">${f.ic}</div><h4>${f.title}</h4><p>${f.desc}</p></div>
+    `).join('');
+  }
+  function renderTestimonials(){
+    document.getElementById('testiGrid').innerHTML = appState.testimonials.map(t=>`
+      <div class="testi-card reveal">
+        <div class="stars">${'★'.repeat(t.stars)}</div>
+        <p>"${escapeHTML(t.quote)}"</p>
+        <div class="testi-user"><div class="avatar" style="background:${t.color};">${t.initials}</div><div><div class="name">${t.name}</div><div class="role">${t.role}</div></div></div>
+      </div>
+    `).join('');
+  }
+  function renderFAQ(){
+    const wrap = document.getElementById('faqWrap');
+    wrap.innerHTML = appState.faqs.map(f=>`
+      <div class="faq-item reveal"><div class="faq-q">${f.q}<span class="plus">+</span></div><div class="faq-a"><p>${f.a}</p></div></div>
+    `).join('');
+    wrap.querySelectorAll('.faq-item').forEach(item=>{
+      const q = item.querySelector('.faq-q'), a = item.querySelector('.faq-a');
+      q.addEventListener('click', ()=>{
+        const isOpen = item.classList.contains('open');
+        wrap.querySelectorAll('.faq-item').forEach(i=>{ i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null; });
+        if (!isOpen){ item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
       });
-      if (!isOpen) {
-        item.classList.add('open');
-        a.style.maxHeight = a.scrollHeight + 'px';
-      }
     });
-  });
+  }
+  function animateCounters(){
+    const counters = document.querySelectorAll('.stat-num');
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if (!entry.isIntersecting) return;
+        const el = entry.target, target = parseInt(el.dataset.target,10), duration = 1800, start = performance.now();
+        function tick(now){
+          const p = Math.min((now-start)/duration,1), eased = 1-Math.pow(1-p,3);
+          el.textContent = Math.floor(eased*target).toLocaleString();
+          if (p<1) requestAnimationFrame(tick); else el.textContent = target.toLocaleString();
+        }
+        requestAnimationFrame(tick); io.unobserve(el);
+      });
+    }, {threshold:.4});
+    counters.forEach(c=>io.observe(c));
+  }
+  function initReveal(){
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, {threshold:.15});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  }
 
-  // Back to top
-  const backTop = document.getElementById('backTop');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 500) backTop.classList.add('show');
-    else backTop.classList.remove('show');
-  });
-  backTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  /* ---------------------------------------------------------------------------
+     5. AUTH
+  --------------------------------------------------------------------------- */
+  function setAuthMode(mode){
+    appState.ui.authMode = mode;
+    document.getElementById('tabLogin').classList.toggle('active', mode==='login');
+    document.getElementById('tabSignup').classList.toggle('active', mode==='signup');
+    document.getElementById('fieldName').style.display = mode==='signup' ? 'block' : 'none';
+    document.getElementById('authSubmit').textContent = mode==='signup' ? 'Create Account' : 'Log In';
+    document.getElementById('authSwitchText').textContent = mode==='signup' ? 'Already have an account?' : "Don't have an account?";
+    document.getElementById('authSwitchBtn').textContent = mode==='signup' ? 'Log in' : 'Sign up';
+  }
+  function validateField(input, test){
+    const field = input.closest('.field');
+    const ok = test(input.value.trim());
+    field.classList.toggle('error', !ok);
+    return ok;
+  }
+  function handleAuthSubmit(e){
+    e.preventDefault();
+    const mode = appState.ui.authMode;
+    const nameEl = document.getElementById('authName'), emailEl = document.getElementById('authEmail'), passEl = document.getElementById('authPass');
+    let valid = true;
+    if (mode === 'signup') valid = validateField(nameEl, v=>v.length>1) && valid;
+    valid = validateField(emailEl, v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) && valid;
+    valid = validateField(passEl, v=>v.length>=6) && valid;
+    if (!valid) return;
+    const name = mode==='signup' ? nameEl.value.trim() : (emailEl.value.split('@')[0]);
+    appState.user = { name: name || 'Resident', email: emailEl.value.trim(), bio:'Civic-minded reporter making the neighborhood better, one fix at a time.', joined:new Date() };
+    showToast(mode==='signup' ? `Account created — welcome, ${appState.user.name}!` : `Welcome back, ${appState.user.name}!`);
+    goTo('dashboard');
+  }
+  function initAuth(){
+    document.getElementById('tabLogin').addEventListener('click', ()=>setAuthMode('login'));
+    document.getElementById('tabSignup').addEventListener('click', ()=>setAuthMode('signup'));
+    document.getElementById('authSwitchBtn').addEventListener('click', ()=>setAuthMode(appState.ui.authMode==='login'?'signup':'login'));
+    document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
+    document.getElementById('guestBtn').addEventListener('click', ()=>{
+      appState.user = { name:'Guest Explorer', email:'guest@fixly.app', bio:'Just browsing the demo dashboard.', joined:new Date() };
+      showToast('Exploring as guest — your changes stay local to this session.');
+      goTo('dashboard');
+    });
+    document.querySelectorAll('.field input').forEach(inp=>{
+      inp.addEventListener('input', ()=> inp.classList.toggle('filled', inp.value.length>0));
+    });
+    document.querySelectorAll('[data-goto]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const target = btn.dataset.goto;
+        if (btn.dataset.mode) setAuthMode(btn.dataset.mode);
+        goTo(target);
+      });
+    });
+    document.querySelectorAll('[data-scroll]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.dataset.scroll;
+        if (id === 'top') { window.scrollTo({top:0,behavior:'smooth'}); return; }
+        document.getElementById(id)?.scrollIntoView({behavior:'smooth'});
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
+     6. DASHBOARD RENDERERS
+  --------------------------------------------------------------------------- */
+  const METRIC_DEFS = {
+    total:    { label:'Total Reported', ic:'📋', var:'--accent' },
+    resolved: { label:'Resolved',       ic:'✅', var:'--success' },
+    progress: { label:'In Progress',    ic:'🚧', var:'--accent' },
+    pending:  { label:'Pending',        ic:'⏳', var:'--warning' },
+  };
+
+  function renderProfileMini(){
+    const u = appState.user;
+    document.getElementById('dashProfileMini').innerHTML = `
+      <div class="avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));">${initials(u.name)}</div>
+      <div><div class="name">${escapeHTML(u.name)}</div><div class="role">${escapeHTML(u.email)}</div></div>
+    `;
+    document.getElementById('dashGreeting').textContent = `Welcome back, ${u.name.split(' ')[0]}`;
+  }
+
+  function renderMetrics(){
+    const m = computeMetrics(appState.issues);
+    const grid = document.getElementById('metricsGrid');
+    grid.innerHTML = appState.ui.layoutOrder.map(key=>{
+      const def = METRIC_DEFS[key];
+      return `
+        <div class="metric-card" draggable="true" data-key="${key}">
+          <div class="metric-top">
+            <div class="metric-ic" style="background:color-mix(in srgb, var(${def.var}) 16%, transparent);color:var(${def.var});">${def.ic}</div>
+            <span style="font-size:10px;color:var(--text-faint);">⠿ drag</span>
+          </div>
+          <div class="metric-num">${m[key]}</div>
+          <div class="metric-label">${def.label}</div>
+        </div>`;
+    }).join('');
+    initDragReorder();
+  }
+
+  function initDragReorder(){
+    const grid = document.getElementById('metricsGrid');
+    let dragKey = null;
+    grid.querySelectorAll('.metric-card').forEach(card=>{
+      card.addEventListener('dragstart', ()=>{ dragKey = card.dataset.key; card.style.opacity='.4'; });
+      card.addEventListener('dragend', ()=>{ card.style.opacity='1'; });
+      card.addEventListener('dragover', e=>{ e.preventDefault(); card.classList.add('drag-over'); });
+      card.addEventListener('dragleave', ()=> card.classList.remove('drag-over'));
+      card.addEventListener('drop', e=>{
+        e.preventDefault(); card.classList.remove('drag-over');
+        const targetKey = card.dataset.key;
+        if (!dragKey || dragKey === targetKey) return;
+        const order = appState.ui.layoutOrder;
+        const from = order.indexOf(dragKey), to = order.indexOf(targetKey);
+        order.splice(from,1); order.splice(to,0,dragKey);
+        renderMetrics();
+      });
+    });
+  }
+
+  function renderBarsChart(){
+    const cats = ['pothole','streetlight','leak','garbage','other'];
+    const counts = cats.map(c=> appState.issues.filter(i=>i.category===c).length);
+    const max = Math.max(1, ...counts);
+    document.getElementById('barsChart').innerHTML = cats.map((c,i)=>`
+      <div class="bar-col">
+        <div class="bar" style="height:${(counts[i]/max*100)||2}%;"></div>
+        <div class="bar-label">${CATEGORY_ICON[c]}<br>${counts[i]}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderDonutChart(){
+    const statuses = ['resolved','progress','pending','critical'];
+    const colorVar = { resolved:'--success', progress:'--accent', pending:'--warning', critical:'--danger' };
+    const counts = statuses.map(s=> appState.issues.filter(i=>i.status===s).length);
+    const total = counts.reduce((a,b)=>a+b,0) || 1;
+    const R = 52, CX = 65, CY = 65, C = 2*Math.PI*R;
+    let offset = 0;
+    const svg = document.getElementById('donutChart');
+    let circles = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--panel-solid)" stroke-width="16"/>`;
+    statuses.forEach((s,i)=>{
+      const frac = counts[i]/total, dash = frac*C;
+      circles += `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(${colorVar[s]})" stroke-width="16"
+        stroke-dasharray="${dash} ${C-dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 ${CX} ${CY})" stroke-linecap="butt"/>`;
+      offset += dash;
+    });
+    svg.innerHTML = circles + `<text x="${CX}" y="${CY+5}" text-anchor="middle" font-family="Poppins, sans-serif" font-size="18" font-weight="700" fill="var(--text)">${total}</text>`;
+    document.getElementById('donutLegend').innerHTML = statuses.map((s,i)=>`
+      <div class="row"><span class="sw" style="background:var(${colorVar[s]});"></span>${STATUS_LABEL[s]} · ${counts[i]}</div>
+    `).join('');
+  }
+
+  function filteredIssues(){
+    const f = appState.ui.filters;
+    return appState.issues.filter(i=>{
+      if (f.status !== 'all' && i.status !== f.status) return false;
+      if (f.search && !(i.title.toLowerCase().includes(f.search.toLowerCase()) || i.location.toLowerCase().includes(f.search.toLowerCase()))) return false;
+      return true;
+    }).sort((a,b)=> b.createdAt - a.createdAt);
+  }
+
+  function issueCardHTML(i){
+    return `
+      <div class="issue-card">
+        <div class="issue-top"><span class="issue-id">${i.id}</span>${badgeFor(i.status)}</div>
+        <div class="issue-title">${CATEGORY_ICON[i.category]} ${escapeHTML(i.title)}</div>
+        <div class="issue-meta"><span>📍 ${escapeHTML(i.location)}</span><span>🏷️ ${CATEGORY_LABEL[i.category]}</span></div>
+        <div class="issue-foot">
+          <span>${timeAgo(i.createdAt)} · ${i.anonymous ? 'Anonymous' : escapeHTML(i.reporter)}</span>
+          <button class="upvote-btn" data-upvote="${i.id}">👍 ${i.upvotes}</button>
+        </div>
+      </div>`;
+  }
+
+  function renderFilters(containerId){
+    const el = document.getElementById(containerId);
+    const opts = [['all','All'],['pending','Pending'],['progress','In Progress'],['resolved','Resolved'],['critical','Critical']];
+    el.innerHTML = opts.map(([k,l])=>`<button class="chip ${appState.ui.filters.status===k?'active':''}" data-status="${k}">${l}</button>`).join('');
+    el.querySelectorAll('[data-status]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ appState.ui.filters.status = btn.dataset.status; renderIssueLists(); });
+    });
+  }
+
+  function renderIssueLists(){
+    const items = filteredIssues();
+    const html = items.length ? items.map(issueCardHTML).join('') : `<div class="empty-state"><div class="ic">🗺️</div>No reports match these filters yet.</div>`;
+    ['issueGrid','issueGridFull'].forEach(id=>{ const el = document.getElementById(id); if (el) el.innerHTML = html; });
+    ['issueGrid','issueGridFull'].forEach(id=>{
+      document.getElementById(id)?.querySelectorAll('[data-upvote]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const issue = appState.issues.find(x=>x.id===btn.dataset.upvote);
+          if (issue){ issue.upvotes++; renderIssueLists(); }
+        });
+      });
+    });
+    renderFilters('filtersRow'); renderFilters('filtersRow2');
+  }
+
+  function renderProfilePanel(){
+    const u = appState.user;
+    document.getElementById('profName').value = u.name;
+    document.getElementById('profEmail').value = u.email;
+    document.getElementById('profBio').value = u.bio;
+    document.getElementById('profilePreview').innerHTML = `
+      <div class="avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));">${initials(u.name)}</div>
+      <div><div style="font-weight:600;">${escapeHTML(u.name)}</div><div style="font-size:12.5px;color:var(--text-gray);">${escapeHTML(u.bio)}</div></div>
+    `;
+  }
+
+  function renderDashboard(){
+    if (!appState.user) appState.user = { name:'Guest Explorer', email:'guest@fixly.app', bio:'Just browsing the demo dashboard.', joined:new Date() };
+    renderProfileMini();
+    renderMetrics();
+    renderBarsChart();
+    renderDonutChart();
+    renderIssueLists();
+    renderProfilePanel();
+  }
+
+  function initDashboardNav(){
+    document.getElementById('dashNav').querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.getElementById('dashNav').querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        appState.ui.dashPanel = btn.dataset.panel;
+        document.querySelectorAll('.dash-panel').forEach(p=> p.style.display = (p.dataset.panelContent===btn.dataset.panel) ? 'block' : 'none');
+      });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      appState.user = null;
+      showToast('Logged out. See you soon!');
+      goTo('landing');
+    });
+    document.getElementById('issueSearch').addEventListener('input', e=>{
+      appState.ui.filters.search = e.target.value; renderIssueLists();
+    });
+    document.querySelectorAll('[data-density]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        appState.ui.density = btn.dataset.density;
+        document.getElementById('dashShell').dataset.density = btn.dataset.density;
+        document.querySelectorAll('[data-density]').forEach(b=>b.classList.toggle('active', b.dataset.density===appState.ui.density));
+      });
+    });
+    document.getElementById('profSaveBtn').addEventListener('click', ()=>{
+      appState.user.name = document.getElementById('profName').value.trim() || appState.user.name;
+      appState.user.email = document.getElementById('profEmail').value.trim() || appState.user.email;
+      appState.user.bio = document.getElementById('profBio').value.trim();
+      renderProfileMini(); renderProfilePanel();
+      showToast('Profile updated.');
+    });
+    ['profName','profBio'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', ()=>{
+        const nameVal = document.getElementById('profName').value.trim() || appState.user.name;
+        const bioVal = document.getElementById('profBio').value.trim();
+        document.getElementById('profilePreview').innerHTML = `
+          <div class="avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent-2));">${initials(nameVal)}</div>
+          <div><div style="font-weight:600;">${escapeHTML(nameVal)}</div><div style="font-size:12.5px;color:var(--text-gray);">${escapeHTML(bioVal)}</div></div>
+        `;
+      });
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
+     7. NEW ISSUE MODAL
+  --------------------------------------------------------------------------- */
+  let selectedSeverity = 'medium';
+  function openModal(){ document.getElementById('issueModal').classList.add('open'); }
+  function closeModal(){ document.getElementById('issueModal').classList.remove('open'); }
+  function initIssueModal(){
+    document.getElementById('newIssueBtn').addEventListener('click', openModal);
+    document.getElementById('newIssueBtn2').addEventListener('click', openModal);
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('issueModal').addEventListener('click', e=>{ if (e.target.id === 'issueModal') closeModal(); });
+
+    document.getElementById('severityRow').querySelectorAll('.sev-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active'); selectedSeverity = btn.dataset.sev;
+      });
+    });
+
+    document.getElementById('useLocationBtn').addEventListener('click', ()=>{
+      if (!navigator.geolocation){ showToast('Geolocation not supported by this browser.', true); return; }
+      navigator.geolocation.getCurrentPosition(
+        pos=>{ document.getElementById('issueLocation').value = `${pos.coords.latitude.toFixed(4)}°, ${pos.coords.longitude.toFixed(4)}°`; showToast('Location captured.'); },
+        ()=> showToast('Location permission denied — enter it manually.', true)
+      );
+    });
+
+    document.getElementById('issueForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const title = document.getElementById('issueTitle').value.trim();
+      if (!title){ showToast('Give the report a short title first.', true); return; }
+      const anon = document.getElementById('issueAnon').checked;
+      const newIssue = {
+        id: 'FX-' + String(1042 + appState.issues.length + Math.floor(Math.random()*90)),
+        title,
+        category: document.getElementById('issueCategory').value,
+        location: document.getElementById('issueLocation').value.trim() || 'Location pending',
+        severity: selectedSeverity,
+        status: selectedSeverity === 'critical' ? 'critical' : 'pending',
+        upvotes: 0,
+        reporter: appState.user ? appState.user.name : 'You',
+        anonymous: anon,
+        createdAt: new Date(),
+      };
+      // TODO: replace with POST /api/issues then splice in the server's returned record
+      appState.issues.unshift(newIssue);
+      document.getElementById('issueForm').reset();
+      selectedSeverity = 'medium';
+      document.querySelectorAll('.sev-btn').forEach(b=>b.classList.toggle('active', b.dataset.sev==='medium'));
+      closeModal();
+      renderMetrics(); renderBarsChart(); renderDonutChart(); renderIssueLists();
+      showToast('Issue reported — thanks for helping your community!');
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
+     8. THEME
+  --------------------------------------------------------------------------- */
+  function setTheme(theme){
+    appState.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    document.querySelectorAll('.theme-switch .knob').forEach(k=> k.textContent = theme==='dark' ? '🔆' : '🌙');
+  }
+  function initThemeToggles(){
+    ['themeToggleLanding','themeToggleDash','themeToggleSettings'].forEach(id=>{
+      document.getElementById(id)?.addEventListener('click', ()=> setTheme(appState.theme==='dark' ? 'light' : 'dark'));
+    });
+  }
+
+  /* ---------------------------------------------------------------------------
+     9. MISC UI (back-to-top)
+  --------------------------------------------------------------------------- */
+  function initBackTop(){
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', ()=>{
+      if (window.scrollY > 500) backTop.classList.add('show'); else backTop.classList.remove('show');
+    });
+    backTop.addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+  }
+
+  /* ---------------------------------------------------------------------------
+     10. BOOTSTRAP
+  --------------------------------------------------------------------------- */
+  function init(){
+    renderHeroCards();
+    renderStats();
+    renderSteps();
+    renderFeatures();
+    renderTestimonials();
+    renderFAQ();
+    initReveal();
+    animateCounters();
+    initAuth();
+    initDashboardNav();
+    initIssueModal();
+    initThemeToggles();
+    initBackTop();
+  }
+  document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
